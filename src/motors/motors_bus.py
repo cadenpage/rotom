@@ -30,11 +30,48 @@ from pprint import pformat
 from typing import Protocol, TypeAlias
 
 import serial
-from deepdiff import DeepDiff
 from tqdm import tqdm
 
-from lerobot.utils.errors import DeviceAlreadyConnectedError, DeviceNotConnectedError
-from lerobot.utils.utils import enter_pressed, move_cursor_up
+
+class DeviceAlreadyConnectedError(RuntimeError):
+    """Raised when attempting to connect an already-connected device."""
+
+
+class DeviceNotConnectedError(RuntimeError):
+    """Raised when attempting to use a device before connecting."""
+
+
+def enter_pressed() -> bool:
+    """Best-effort check for an Enter keypress.
+
+    Used only for user-interruptible loops; returns False in non-interactive contexts.
+    """
+
+    try:
+        import select
+        import sys
+
+        readable, _, _ = select.select([sys.stdin], [], [], 0)
+        if not readable:
+            return False
+        sys.stdin.readline()  # consume
+        return True
+    except Exception:
+        return False
+
+
+def move_cursor_up(lines: int) -> None:
+    """Move terminal cursor up by `lines` (best-effort)."""
+
+    if lines <= 0:
+        return
+    try:
+        import sys
+
+        sys.stdout.write(f"\x1b[{lines}A")
+        sys.stdout.flush()
+    except Exception:
+        return
 
 NameOrID: TypeAlias = str | int
 Value: TypeAlias = int | float
@@ -295,9 +332,7 @@ class MotorsBus(abc.ABC):
             return False
 
         first_table = self.model_ctrl_table[self.models[0]]
-        return any(
-            DeepDiff(first_table, get_ctrl_table(self.model_ctrl_table, model)) for model in self.models[1:]
-        )
+        return any(first_table != get_ctrl_table(self.model_ctrl_table, model) for model in self.models[1:])
 
     @cached_property
     def models(self) -> list[str]:
@@ -692,7 +727,7 @@ class MotorsBus(abc.ABC):
         The function computes and writes a homing offset such that the present position becomes exactly one
         half-turn (e.g. `2047` on a 12-bit encoder).
 
-        Args:
+        Args
             motors (NameOrID | list[NameOrID] | None, optional): Motors to adjust. Defaults to all motors (`None`).
 
         Returns:

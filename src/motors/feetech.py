@@ -18,9 +18,9 @@ from copy import deepcopy
 from enum import Enum
 from pprint import pformat
 
-from lerobot.motors.encoding_utils import decode_sign_magnitude, encode_sign_magnitude
+from .encoding_utils import decode_sign_magnitude, encode_sign_magnitude
 
-from ..motors_bus import Motor, MotorCalibration, MotorsBus, NameOrID, Value, get_address
+from .motors_bus import Motor, MotorCalibration, MotorsBus, NameOrID, Value, get_address
 from .tables import (
     FIRMWARE_MAJOR_VERSION,
     FIRMWARE_MINOR_VERSION,
@@ -458,7 +458,7 @@ class FeetechMotorsBus(MotorsBus):
 # Example usage:
 
 if __name__ == "__main__":
-    from lerobot.motors.motors_bus import Motor
+    from .motors_bus import Motor
 
     bus = FeetechMotorsBus(
         port="/dev/ttyACM0",

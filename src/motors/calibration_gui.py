@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
-from lerobot.motors import MotorCalibration, MotorsBus
+from motors import MotorCalibration, MotorsBus
 
 BAR_LEN, BAR_THICKNESS = 450, 8
 HANDLE_R = 10
@@ -418,9 +418,9 @@ class RangeFinderGUI:
 
 
 def _build_default_bus() -> MotorsBus:
-    from lerobot.motors import Motor, MotorNormMode
+    from motors import Motor, MotorNormMode
     # Choose bus class
-    from lerobot.motors.feetech.feetech import FeetechMotorsBus as BusCls
+    from motors.feetech import FeetechMotorsBus as BusCls
 
     motors = {
         name: Motor(id=mid, model=model, norm_mode=MotorNormMode.RANGE_M100_100)
