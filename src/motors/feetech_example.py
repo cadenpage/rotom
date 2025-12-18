@@ -1,6 +1,6 @@
-from lerobot.motors.feetech.feetech import FeetechMotorsBus
-from lerobot.motors.motors_bus import Motor
-from lerobot.motors.feetech.tables import SCAN_BAUDRATES, MODEL_NUMBER_TABLE
+from motors.feetech.feetech import FeetechMotorsBus
+from motors.motors_bus import Motor
+from motors.feetech.tables import SCAN_BAUDRATES, MODEL_NUMBER_TABLE
 
 
 def main():
