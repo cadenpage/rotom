@@ -1,0 +1,9 @@
+rotom
+
+This repository includes code derived from the LeRobot project by Hugging Face
+(https://github.com/huggingface/lerobot), licensed under the Apache License, Version 2.0.
+
+Modifications and additional code:
+Copyright 2025 cadenpage
+
+The Apache License, Version 2.0 applies; see the LICENSE file.

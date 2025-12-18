@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright 2024 The HuggingFace Inc. team. All rights reserved.
+# Modifications Copyright 2025 cadenpage.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -523,6 +524,8 @@ class MotorsBus(abc.ABC):
 
         model = self.motors[motor].model
         target_id = self.motors[motor].id
+        # At this point, initial_baudrate must be resolved to an int
+        assert isinstance(initial_baudrate, int)
         self.set_baudrate(initial_baudrate)
         self._disable_torque(initial_id, model)
 
@@ -538,7 +541,7 @@ class MotorsBus(abc.ABC):
         self.set_baudrate(self.default_baudrate)
 
     @abc.abstractmethod
-    def _find_single_motor(self, motor: str, initial_baudrate: int | None) -> tuple[int, int]:
+    def _find_single_motor(self, motor: str, initial_baudrate: int | None = None) -> tuple[int, int]:
         pass
 
     @abc.abstractmethod
@@ -569,7 +572,7 @@ class MotorsBus(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def enable_torque(self, motors: str | list[str] | None = None, num_retry: int = 0) -> None:
+    def enable_torque(self, motors: int | str | list[str] | None = None, num_retry: int = 0) -> None:
         """Enable torque on selected motors.
 
         Args:
@@ -683,7 +686,7 @@ class MotorsBus(abc.ABC):
 
         self.calibration = {}
 
-    def set_half_turn_homings(self, motors: NameOrID | list[NameOrID] | None = None) -> dict[NameOrID, Value]:
+    def set_half_turn_homings(self, motors: NameOrID | list[NameOrID] | None = None) -> dict[str, Value]:
         """Centre each motor range around its current position.
 
         The function computes and writes a homing offset such that the present position becomes exactly one
@@ -693,7 +696,7 @@ class MotorsBus(abc.ABC):
             motors (NameOrID | list[NameOrID] | None, optional): Motors to adjust. Defaults to all motors (`None`).
 
         Returns:
-            dict[NameOrID, Value]: Mapping *motor → written homing offset*.
+            dict[str, Value]: Mapping *motor name → written homing offset*.
         """
         if motors is None:
             motors = list(self.motors)
@@ -703,7 +706,16 @@ class MotorsBus(abc.ABC):
             raise TypeError(motors)
 
         self.reset_calibration(motors)
-        actual_positions = self.sync_read("Present_Position", motors, normalize=False)
+
+        # `sync_read` is keyed by motor names; normalize inputs to names here.
+        if motors is None:
+            names: list[str] = list(self.motors)
+        elif isinstance(motors, (str, int)):
+            names = [self._id_to_name(motors) if isinstance(motors, int) else motors]
+        else:
+            names = [self._id_to_name(m) if isinstance(m, int) else m for m in motors]
+
+        actual_positions = self.sync_read("Present_Position", names, normalize=False)
         homing_offsets = self._get_half_turn_homings(actual_positions)
         for motor, offset in homing_offsets.items():
             self.write("Homing_Offset", motor, offset)
@@ -711,12 +723,12 @@ class MotorsBus(abc.ABC):
         return homing_offsets
 
     @abc.abstractmethod
-    def _get_half_turn_homings(self, positions: dict[NameOrID, Value]) -> dict[NameOrID, Value]:
+    def _get_half_turn_homings(self, positions: dict[str, Value]) -> dict[str, Value]:
         pass
 
     def record_ranges_of_motion(
         self, motors: NameOrID | list[NameOrID] | None = None, display_values: bool = True
-    ) -> tuple[dict[NameOrID, Value], dict[NameOrID, Value]]:
+    ) -> tuple[dict[str, Value], dict[str, Value]]:
         """Interactively record the min/max encoder values of each motor.
 
         Move the joints by hand (with torque disabled) while the method streams live positions. Press
@@ -728,8 +740,7 @@ class MotorsBus(abc.ABC):
             display_values (bool, optional): When `True` (default) a live table is printed to the console.
 
         Returns:
-            tuple[dict[NameOrID, Value], dict[NameOrID, Value]]: Two dictionaries *mins* and *maxes* with the
-                extreme values observed for each motor.
+            tuple[dict[str, Value], dict[str, Value]]: Two dictionaries *mins* and *maxes* keyed by motor name.
         """
         if motors is None:
             motors = list(self.motors)
@@ -738,20 +749,23 @@ class MotorsBus(abc.ABC):
         elif not isinstance(motors, list):
             raise TypeError(motors)
 
-        start_positions = self.sync_read("Present_Position", motors, normalize=False)
+        # `sync_read` expects motor names; normalize IDs to names for consistent dict keys.
+        names: list[str] = [self._id_to_name(m) if isinstance(m, int) else m for m in motors]
+
+        start_positions = self.sync_read("Present_Position", names, normalize=False)
         mins = start_positions.copy()
         maxes = start_positions.copy()
 
         user_pressed_enter = False
         while not user_pressed_enter:
-            positions = self.sync_read("Present_Position", motors, normalize=False)
+            positions = self.sync_read("Present_Position", names, normalize=False)
             mins = {motor: min(positions[motor], min_) for motor, min_ in mins.items()}
             maxes = {motor: max(positions[motor], max_) for motor, max_ in maxes.items()}
 
             if display_values:
                 print("\n-------------------------------------------")
                 print(f"{'NAME':<15} | {'MIN':>6} | {'POS':>6} | {'MAX':>6}")
-                for motor in motors:
+                for motor in names:
                     print(f"{motor:<15} | {mins[motor]:>6} | {positions[motor]:>6} | {maxes[motor]:>6}")
 
             if enter_pressed():
@@ -759,9 +773,9 @@ class MotorsBus(abc.ABC):
 
             if display_values and not user_pressed_enter:
                 # Move cursor up to overwrite the previous output
-                move_cursor_up(len(motors) + 3)
+                move_cursor_up(len(names) + 3)
 
-        same_min_max = [motor for motor in motors if mins[motor] == maxes[motor]]
+        same_min_max = [motor for motor in names if mins[motor] == maxes[motor]]
         if same_min_max:
             raise ValueError(f"Some motors have the same min and max values:\n{pformat(same_min_max)}")
 
@@ -982,7 +996,7 @@ class MotorsBus(abc.ABC):
         return value, comm, error
 
     def write(
-        self, data_name: str, motor: str, value: Value, *, normalize: bool = True, num_retry: int = 0
+        self, data_name: str, motor: NameOrID, value: Value, *, normalize: bool = True, num_retry: int = 0
     ) -> None:
         """Write a value to a single motor's register.
 
@@ -1004,14 +1018,15 @@ class MotorsBus(abc.ABC):
                 f"{self.__class__.__name__}('{self.port}') is not connected. You need to run `{self.__class__.__name__}.connect()`."
             )
 
-        id_ = self.motors[motor].id
-        model = self.motors[motor].model
+        id_ = self._get_motor_id(motor)
+        model = self._get_motor_model(motor)
         addr, length = get_address(self.model_ctrl_table, model, data_name)
 
         if normalize and data_name in self.normalized_data:
             value = self._unnormalize({id_: value})[id_]
 
-        value = self._encode_sign(data_name, {id_: value})[id_]
+        # Register writes are integer-valued; cast before sign encoding.
+        value = self._encode_sign(data_name, {id_: int(value)})[id_]
 
         err_msg = f"Failed to write '{data_name}' on {id_=} with '{value}' after {num_retry + 1} tries."
         self._write(addr, length, id_, value, num_retry=num_retry, raise_on_error=True, err_msg=err_msg)
@@ -1176,6 +1191,8 @@ class MotorsBus(abc.ABC):
         if normalize and data_name in self.normalized_data:
             ids_values = self._unnormalize(ids_values)
 
+        # Register writes are integer-valued; cast before sign encoding.
+        ids_values = {id_: int(val) for id_, val in ids_values.items()}
         ids_values = self._encode_sign(data_name, ids_values)
 
         err_msg = f"Failed to sync write '{data_name}' with {ids_values=} after {num_retry + 1} tries."
