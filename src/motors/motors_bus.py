@@ -707,7 +707,7 @@ class MotorsBus(abc.ABC):
         """
         if motors is None:
             motors = list(self.motors)
-        elif isinstance(motors, (str | int)):
+        elif isinstance(motors, (str, int)):
             motors = [motors]
         elif not isinstance(motors, list):
             raise TypeError(motors)
@@ -735,7 +735,7 @@ class MotorsBus(abc.ABC):
         """
         if motors is None:
             motors = list(self.motors)
-        elif isinstance(motors, (str | int)):
+        elif isinstance(motors, (str, int)):
             motors = [motors]
         elif not isinstance(motors, list):
             raise TypeError(motors)
@@ -779,7 +779,7 @@ class MotorsBus(abc.ABC):
         """
         if motors is None:
             motors = list(self.motors)
-        elif isinstance(motors, (str | int)):
+        elif isinstance(motors, (str, int)):
             motors = [motors]
         elif not isinstance(motors, list):
             raise TypeError(motors)

@@ -2,35 +2,38 @@
 from motors import FeetechMotorsBus
 from motors import Motor
 from motors import SCAN_BAUDRATES, MODEL_NUMBER_TABLE
-
+import time
 
 def main():
     # Adjust these to your hardware
-    port = "/dev/ttyACM0"
-    motor_id = 4
-    motor_model = "sts3215"
+    PORT = "/dev/ttyACM0"
+
+# Arm definition: name -> (id, model)
+    MOTORS = {
+    "Base": (6, "sts3215"),
+    "Shoulder": (5, "sts3215"),
+    "Elbow": (4, "sts3215"),
+    "Wrist": (3, "sts3215"),
+    "Flick": (2, "sts3215"),
+    }
+
+# Which motors to act on.
+    ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick"]
 
     bus = FeetechMotorsBus(
-        port=port,
-        motors={"my_motor": Motor(id=motor_id, model=motor_model, norm_mode="position")},
+        port=PORT,
+        motors={name: Motor(id=m_id, model=m_model, norm_mode="position") for name, (m_id, m_model) in MOTORS.items()},
         protocol_version=0,
     )
 
     # Open the port without handshake so we can scan reliably
     bus.connect(handshake=False)
-        # Ensure correct mode and torque before moving
-        # Some units ignore commands if torque is disabled or mode mismatches.
-        # Avoid locking config while debugging.
-    # bus.write("Operating_Mode", "my_motor", 0)  # POSITION mode
-    bus.write("Torque_Enable", "my_motor", 0)
-    # bus.write("Lock", "my_motor", 0)
 
-        # Proceed with normal operations
-    position = bus.read("Present_Position", "my_motor", normalize=False)
-    torque = bus.read("Torque_Enable", "my_motor", normalize=False)
-    mode = bus.read("Operating_Mode", "my_motor", normalize=False)
+    position = bus.read("Present_Position", "Base", normalize=False)
+    torque = bus.read("Torque_Enable", "Base", normalize=False)
+    mode = bus.read("Operating_Mode", "Base", normalize=False)
     print(f"Mode={mode}, Torque={torque}, Position={position}")
-    few_steps = 500
+    few_steps = -500
     goal = position + few_steps
 
     # Keep goal within limits
@@ -49,8 +52,8 @@ def main():
         print(f"Present_Position={pos}")
         time.sleep(0.1)
 
-    bus.disconnect()
 
+    bus.disconnect()
 
 if __name__ == "__main__":
     main()
