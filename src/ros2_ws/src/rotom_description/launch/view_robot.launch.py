@@ -45,10 +45,11 @@ def generate_launch_description():
     # 5) Start RViz.
     #    With no config, it opens default RViz; you then add "RobotModel"
     #    and set Fixed Frame (often base_link).
+    rviz_config = os.path.join(pkg_share, 'rviz', 'view_robot.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
-        name='rviz2',
+        arguments=['-d', rviz_config],
         output='screen',
     )
 
