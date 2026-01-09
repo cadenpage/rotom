@@ -3,11 +3,19 @@
 
   <xacro:property name="mesh_scale" value="0.001"/>
 
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.0 0.0 1.0 1.0"/>
+  </material>
+
   <link name="world"/>
 
   <link name="base_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="blue"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
@@ -15,9 +23,27 @@
     </visual>
   </link>
 
+  <link name="base_shoulder">
+    <visual>
+    <!---1.570796-->
+      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/base2shoulder.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+  </link>
+
+
   <joint name="world_to_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
+  </joint>
+  <joint name="base_to_shoulder" type="continuous">
+    <parent link="base_link"/>
+    <child link="base_shoulder"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
   </joint>
 
 </robot>

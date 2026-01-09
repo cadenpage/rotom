@@ -1,7 +1,9 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
-from launch.substitutions import Command
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.parameter_descriptions import ParameterValue
 
 from ament_index_python.packages import get_package_share_directory
@@ -42,19 +44,34 @@ def generate_launch_description():
         }]
     )
 
+
+
     # 5) Start RViz.
     #    With no config, it opens default RViz; you then add "RobotModel"
     #    and set Fixed Frame (often base_link).
+
+    joint_state_gui = Node(
+        package='joint_state_publisher_gui',
+        executable='joint_state_publisher_gui',
+        output='screen'
+    )
+
     rviz_config = os.path.join(pkg_share, 'rviz', 'view_robot.rviz')
+    use_rviz = LaunchConfiguration('use_rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
         arguments=['-d', rviz_config],
         output='screen',
+        condition = IfCondition(use_rviz)
     )
 
     # 6) LaunchDescription is the list of things to start.
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_rviz', default_value='true',
+            description='Whether to start RViz.'),
         robot_state_publisher_node,
+        joint_state_gui,
         rviz_node,
     ])

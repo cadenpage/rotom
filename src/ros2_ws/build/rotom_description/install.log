@@ -5,7 +5,7 @@
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/launch/view_robot.launch.py
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/urdf/rotom.urdf.xacro
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/urdf/rotom.urdf
-/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/rviz
+/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/rviz/view_robot.rviz
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual/elbow2wrist.stl
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual/wrist2flick.stl
 /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual/origin2base.stl
