@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot name="rotom" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="mesh_scale" value="0.001"/>
+
+  <link name="world"/>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+</robot>
+

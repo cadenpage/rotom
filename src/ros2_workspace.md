@@ -7,8 +7,8 @@ Assumes you already downloaded binary package of ROS2 humble on Ubuntu 22.04. I 
 Update and upgrade any necessary packages
 
 ```bash
-sudo apt update
-sudo apt upgrate -y
+sudo apt updade
+sudo apt upgrade -y
 ```
 ---
 

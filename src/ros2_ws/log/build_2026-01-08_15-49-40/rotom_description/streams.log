@@ -1,0 +1,21 @@
+[1.384s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_description': CONDA_PROMPT_MODIFIER=(rotom) PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_description build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/install.log --single-version-externally-managed install_data
+[2.003s] running egg_info
+[2.005s] writing ../../build/rotom_description/rotom_description.egg-info/PKG-INFO
+[2.005s] writing dependency_links to ../../build/rotom_description/rotom_description.egg-info/dependency_links.txt
+[2.006s] writing entry points to ../../build/rotom_description/rotom_description.egg-info/entry_points.txt
+[2.006s] writing requirements to ../../build/rotom_description/rotom_description.egg-info/requires.txt
+[2.006s] writing top-level names to ../../build/rotom_description/rotom_description.egg-info/top_level.txt
+[2.010s] reading manifest file '../../build/rotom_description/rotom_description.egg-info/SOURCES.txt'
+[2.012s] writing manifest file '../../build/rotom_description/rotom_description.egg-info/SOURCES.txt'
+[2.012s] running build
+[2.012s] running build_py
+[2.012s] running install
+[2.013s] running install_lib
+[2.016s] running install_data
+[2.017s] copying urdf/rotom.urdf -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/urdf
+[2.017s] running install_egg_info
+[2.024s] removing '/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages/rotom_description-0.0.0-py3.10.egg-info' (and everything under it)
+[2.025s] Copying ../../build/rotom_description/rotom_description.egg-info to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages/rotom_description-0.0.0-py3.10.egg-info
+[2.027s] running install_scripts
+[2.074s] writing list of installed files to '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/install.log'
+[2.158s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_description' returned '0': CONDA_PROMPT_MODIFIER=(rotom) PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_description build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/install.log --single-version-externally-managed install_data
