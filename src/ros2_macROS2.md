@@ -1,6 +1,6 @@
-# ROS 2 Humble + RViz on macOS (Native, No Docker)
+# ROS 2 Humble + RViz on macOS (Native, No Docker) — **micromamba** (RoboStack)
 
-This guide installs ROS 2 Humble on macOS using **Miniforge + mamba (RoboStack)**  
+This guide installs ROS 2 Humble on macOS using **micromamba + conda-forge (RoboStack)**  
 and runs **RViz locally on the Mac** (no X11, no NoMachine, no Docker).
 
 This setup is ideal when:
@@ -38,58 +38,53 @@ Full Xcode.app is NOT required.
 
 ---
 
-## 2. Install Miniforge (conda-forge based)
+## 2. Install **micromamba** (no Anaconda/Miniforge needed)
 
-Download:
+Pick the correct architecture:
+
+- Apple Silicon: `osx-arm64`
+- Intel Macs: `osx-64`
+
+### Install (manual, recommended)
+
 ```bash
-curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-```
+mkdir -p "$HOME/bin"
+cd "$HOME/bin"
 
-Install:
-```bash
-bash Miniforge3-MacOSX-arm64.sh
-```
+# Apple Silicon (arm64):
+curl -L -o micromamba 'https://micro.mamba.pm/api/micromamba/osx-arm64/latest'
 
-During install:
-- Accept the license
-- Accept default install location
-- Say **yes** to shell initialization
+# Intel (x86_64):
+# curl -L -o micromamba 'https://micro.mamba.pm/api/micromamba/osx-64/latest'
 
-Close and reopen the terminal when finished.
-
----
-
-## 3. Ensure You Are Using Miniforge (Not Anaconda)
-
-Activate Miniforge base:
-```bash
-source ~/miniforge3/bin/activate
+chmod +x micromamba
 ```
 
 Verify:
 ```bash
-conda info | sed -n '1,5p'
+"$HOME/bin/micromamba" --version
 ```
-
-Expected:
-```
-active env location : /Users/<username>/miniforge3
-```
-
-Do NOT install ROS into `/opt/anaconda3`.
 
 ---
 
-## 4. Fix PATH for Miniforge / mamba
+## 3. Initialize micromamba for zsh
 
-Edit zsh config:
+Choose where environments/packages live (recommended):
+```bash
+mkdir -p "$HOME/micromamba"
+```
+
+Add this near the TOP of `~/.zshrc`:
 ```bash
 nano ~/.zshrc
 ```
 
-Add near the TOP:
+Add:
 ```bash
-export PATH="$HOME/miniforge3/bin:$PATH"
+# micromamba
+export MAMBA_ROOT_PREFIX="$HOME/micromamba"
+export PATH="$HOME/bin:$PATH"
+eval "$("$HOME/bin/micromamba" shell hook -s zsh)"
 ```
 
 Reload:
@@ -97,35 +92,35 @@ Reload:
 source ~/.zshrc
 ```
 
-Verify:
+Sanity check:
 ```bash
-mamba --version
+micromamba info
 ```
 
 ---
 
-## 5. Create a Dedicated ROS 2 Environment
+## 4. Create a Dedicated ROS 2 Environment
 
 ```bash
-mamba create -n ros-humble -c conda-forge python=3.10
+micromamba create -n ros-humble -c conda-forge -c robostack-staging python=3.10
 ```
 
 Activate:
 ```bash
-conda activate ros-humble
+micromamba activate ros-humble
 ```
 
-Prompt should show:
+Prompt should show something like:
 ```
 (ros-humble)
 ```
 
 ---
 
-## 6. Install ROS 2 Humble + RViz (RoboStack)
+## 5. Install ROS 2 Humble + RViz (RoboStack)
 
 ```bash
-mamba install -c conda-forge -c robostack-staging ros-humble-desktop
+micromamba install -n ros-humble -c conda-forge -c robostack-staging ros-humble-desktop
 ```
 
 Notes:
@@ -135,10 +130,10 @@ Notes:
 
 ---
 
-## 7. Run RViz Locally on macOS
+## 6. Run RViz Locally on macOS
 
 ```bash
-conda activate ros-humble
+micromamba activate ros-humble
 rviz2
 ```
 
@@ -149,14 +144,14 @@ Expected:
 
 ---
 
-## 8. Connect to Robot Over Network (Jetson, etc.)
+## 7. Connect to Robot Over Network (Jetson, etc.)
 
 On BOTH machines:
 ```bash
 export ROS_DOMAIN_ID=42
 ```
 
-(Optional: add to ~/.bashrc on Linux and ~/.zshrc on macOS.)
+(Optional: add to `~/.bashrc` on Linux and `~/.zshrc` on macOS.)
 
 Verify discovery on macOS:
 ```bash
@@ -167,24 +162,41 @@ Robot topics should appear.
 
 ---
 
-## 9. Daily Workflow
+## 8. Daily Workflow
 
-Motor control / non-ROS tools:
+Motor control / non-ROS tools (example):
 ```bash
-conda activate rotom
+micromamba activate rotom
 ```
 
 ROS visualization:
 ```bash
-conda activate ros-humble
+micromamba activate ros-humble
 rviz2
 ```
 
-ROS workspaces are just folders and are NOT tied to conda environments.
+ROS workspaces are just folders and are NOT tied to micromamba environments.
 
+---
 
---
-To have an easy configuration set up so you just need to run a simple command in the mac terminal to get it going, edit ~/.zshrc and add this snippit to automatically run or have the option to run this command each reset
+## 9. Optional: one-command startup (zsh)
+
+Add this to `~/.zshrc`:
+```bash
+# Quick ROS + RViz launcher
+rosviz() {
+  micromamba activate ros-humble || return 1
+  export ROS_DOMAIN_ID=42
+  rviz2
+}
+```
+
+Then run:
+```bash
+rosviz
+```
+
+---
 
 ## Key Idea
 
@@ -192,5 +204,3 @@ ROS is distributed.
 
 The robot publishes data.  
 The Mac visualizes it.
-
-
