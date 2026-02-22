@@ -1,0 +1,9 @@
+# Default initial positions for rotom's ros2_control fake system
+
+initial_positions:
+  base_to_shoulder: 0
+  elbow_to_wrist: 0
+  flick_to_claw: 0
+  flick_to_ee: 0
+  shoulder_to_elbow: 0
+  wrist_to_flick: 0

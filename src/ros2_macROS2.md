@@ -102,12 +102,12 @@ micromamba info
 ## 4. Create a Dedicated ROS 2 Environment
 
 ```bash
-micromamba create -n ros-humble -c conda-forge -c robostack-staging python=3.10
+micromamba create -n ros_humble -c conda-forge -c robostack-staging python=3.10
 ```
 
 Activate:
 ```bash
-micromamba activate ros-humble
+micromamba activate ros_humble
 ```
 
 Prompt should show something like:
@@ -133,7 +133,7 @@ Notes:
 ## 6. Run RViz Locally on macOS
 
 ```bash
-micromamba activate ros-humble
+micromamba activate ros_humble
 rviz2
 ```
 
@@ -171,7 +171,7 @@ micromamba activate rotom
 
 ROS visualization:
 ```bash
-micromamba activate ros-humble
+micromamba activate ros_humble
 rviz2
 ```
 

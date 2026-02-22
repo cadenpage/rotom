@@ -100,50 +100,55 @@
     <child link="base_link"/>
   </joint>
 
-  <joint name="base_to_shoulder" type="continuous">
+  <joint name="base_to_shoulder" type="revolute">
     <parent link="base_link"/>
     <child link="base_shoulder"/>
     <origin xyz="0 -0.03 0.04025" rpy="1.570796 -1.570796 0"/>
     <axis xyz="1 0 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="5.0" velocity="3.0"/>
   </joint>
 
-  <joint name="shoulder_to_elbow" type="continuous">
+
+  <joint name="shoulder_to_elbow" type="revolute">
     <parent link="base_shoulder"/>
     <child link="shoulder_elbow"/>
     <origin xyz="0.0166 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <limit lower="-2.2" upper="2.2" effort="5.0" velocity="3.0"/>
   </joint>
 
-  <joint name="elbow_to_wrist" type="continuous">
+  <joint name="elbow_to_wrist" type="revolute">
     <parent link="shoulder_elbow"/>
     <child link="elbow_wrist"/>
     <origin xyz="0.0868 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <limit lower="-2.2" upper="2.2" effort="5.0" velocity="3.0"/>
   </joint>
 
-  <joint name="wrist_to_flick" type="continuous">
+  <joint name="wrist_to_flick" type="revolute">
     <parent link="elbow_wrist"/>
     <child link="wrist_flick"/>
     <origin xyz="0.06025 0.01825 -0.0285" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <limit lower="-2.0" upper="2.0" effort="5.0" velocity="3.0"/>
   </joint>
 
-
-  <joint name="flick_to_claw" type="continuous">
+  <joint name="flick_to_claw" type="revolute">
     <parent link="wrist_flick"/>
     <child link="flick_claw"/>
     <origin xyz="0.0206 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="5.0" velocity="3.0"/>
   </joint>
 
-  <joint name="flick_to_ee" type="continuous">
+  <joint name="flick_to_ee" type="revolute">
     <parent link="flick_claw"/>
     <child link="ee"/>
     <origin xyz="0.0668 0.0365 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-
+    <limit lower="-1.57" upper="1.57" effort="5.0" velocity="3.0"/>
   </joint>
 
 
-</robot>
 
+</robot>
