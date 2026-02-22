@@ -13,10 +13,11 @@ MOTORS = {
     "Elbow": (4, "sts3215"),
     "Wrist": (3, "sts3215"),
     "Flick": (2, "sts3215"),
+        "EE": (1, "sts3215"),
     }
 
 # Which motors to act on.
-ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick"]
+ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"]
 
 bus = FeetechMotorsBus(
         port=PORT,

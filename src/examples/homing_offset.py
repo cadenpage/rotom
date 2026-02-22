@@ -23,16 +23,20 @@ from motors import FeetechMotorsBus, Motor
 PORT = "/dev/ttyACM0"
 
 # Arm definition: name -> (id, model)
-MOTORS = {
-	"Base": (6, "sts3215"),
-	"Shoulder": (5, "sts3215"),
-	"Elbow": (4, "sts3215"),
-	"Wrist": (3, "sts3215"),
-	"Flick": (2, "sts3215"),
-}
+# MOTORS = {
+# 	"Base": (6, "sts3215"),
+# 	"Shoulder": (5, "sts3215"),
+# 	"Elbow": (4, "sts3215"),
+# 	"Wrist": (3, "sts3215"),
+# 	"Flick": (2, "sts3215"),
+# }
 
+MOTORS = {
+	"EE": (1, "sts3215"),
+}
 # Which motors to act on.
-ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick"]
+# ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick"]
+ARM = ["EE"]
 
 # One of: "show" | "set_half_turn"
 MODE = "set_half_turn"
