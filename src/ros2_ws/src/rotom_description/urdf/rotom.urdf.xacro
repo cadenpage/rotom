@@ -92,6 +92,15 @@
     </visual>
   </link>
 
+  <link name="tool0">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
   
 
 
@@ -148,6 +157,13 @@
     <axis xyz="0 1 0"/>
     <limit lower="-1.57" upper="1.57" effort="5.0" velocity="3.0"/>
   </joint>
+
+  <joint name="tool0" type="fixed">
+    <parent link="ee"/>
+    <child link="tool0"/>
+    <origin xyz="0.055 -.01825 0" rpy="0 0 0"/>
+  </joint>
+
 
 
 

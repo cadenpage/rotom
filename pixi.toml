@@ -6,11 +6,13 @@ platforms = ["linux-aarch64"]
 version = "0.1.0"
 
 [tasks]
+ros2-control = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; source /home/caden/Documents/rotom/src/ros2_ws/install/setup.bash; ros2 launch rotom_control rotom_control.launch.py'"
 
 [dependencies]
 python = "3.10.*"
 tqdm = ">=4.67.3,<5"
 pygame = ">=2.6.1,<3"
+pip = ">=26.0.1,<27"
 
 [pypi-dependencies]
 feetech-servo-sdk = ">=1.0.0, <2"
