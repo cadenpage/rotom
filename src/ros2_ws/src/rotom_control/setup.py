@@ -18,7 +18,6 @@ setup(
     maintainer_email="caden@example.com",
     description="Minimal ROS2 bridge for Rotom motor control.",
     license="Apache-2.0",
-    tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "rotom_motor_bridge = rotom_control.ros2_motor_bridge:main",

@@ -21,6 +21,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="base_shoulder">
@@ -32,6 +39,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/base2shoulder.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="shoulder_elbow">
@@ -43,6 +57,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/shoulder2elbow.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="elbow_wrist">
@@ -54,6 +75,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0 -0.006 0" rpy="3.14159265359 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/elbow2wrist.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="wrist_flick">
@@ -65,6 +93,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0.0206 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/wrist2flick.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   
@@ -79,6 +114,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/flick2claw.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="ee">
@@ -90,6 +132,13 @@
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
+    <collision>
+      <origin xyz="0 0.003 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/EE.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="tool0">
@@ -100,6 +149,12 @@
       </geometry>
       <material name="gray"/>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
   </link>
   
 
@@ -114,7 +169,7 @@
     <child link="base_shoulder"/>
     <origin xyz="0 -0.03 0.04025" rpy="1.570796 -1.570796 0"/>
     <axis xyz="1 0 0"/>
-    <limit lower="-3.14159" upper="3.14159" effort="5.0" velocity="3.0"/>
+    <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
   </joint>
 
 
@@ -123,7 +178,7 @@
     <child link="shoulder_elbow"/>
     <origin xyz="0.0166 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.2" upper="2.2" effort="5.0" velocity="3.0"/>
+    <limit lower="-0.055237" upper="0.823949" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="elbow_to_wrist" type="revolute">
@@ -131,7 +186,7 @@
     <child link="elbow_wrist"/>
     <origin xyz="0.0868 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.2" upper="2.2" effort="5.0" velocity="3.0"/>
+    <limit lower="-1.410073" upper="1.997731" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="wrist_to_flick" type="revolute">
@@ -139,7 +194,7 @@
     <child link="wrist_flick"/>
     <origin xyz="0.06025 0.01825 -0.0285" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
-    <limit lower="-2.0" upper="2.0" effort="5.0" velocity="3.0"/>
+    <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="flick_to_claw" type="revolute">
@@ -147,7 +202,7 @@
     <child link="flick_claw"/>
     <origin xyz="0.0206 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.57" upper="1.57" effort="5.0" velocity="3.0"/>
+    <limit lower="-0.306871" upper="1.647898" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="flick_to_ee" type="revolute">
@@ -155,7 +210,7 @@
     <child link="ee"/>
     <origin xyz="0.0668 0.0365 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.57" upper="1.57" effort="5.0" velocity="3.0"/>
+    <limit lower="-1.884188" upper="1.885723" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="tool0" type="fixed">

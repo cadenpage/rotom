@@ -14,4 +14,13 @@
     </group>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="base_link"/>
+
+    <!-- Disable collision checks for directly connected links -->
+    <disable_collisions link1="base_link" link2="base_shoulder" reason="Adjacent"/>
+    <disable_collisions link1="base_shoulder" link2="shoulder_elbow" reason="Adjacent"/>
+    <disable_collisions link1="shoulder_elbow" link2="elbow_wrist" reason="Adjacent"/>
+    <disable_collisions link1="elbow_wrist" link2="wrist_flick" reason="Adjacent"/>
+    <disable_collisions link1="wrist_flick" link2="flick_claw" reason="Adjacent"/>
+    <disable_collisions link1="flick_claw" link2="ee" reason="Adjacent"/>
+    <disable_collisions link1="ee" link2="tool0" reason="Adjacent"/>
 </robot>

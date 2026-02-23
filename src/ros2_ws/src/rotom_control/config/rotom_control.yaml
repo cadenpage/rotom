@@ -7,6 +7,8 @@ rotom_motor_bridge:
     publish_rate_hz: 30.0
     command_topic: "/joint_command"
     state_topic: "/joint_states"
+    trajectory_action: "/arm_controller/follow_joint_trajectory"
+    enable_trajectory_action: true
     joint_names:
       - base_to_shoulder
       - shoulder_to_elbow
@@ -43,3 +45,10 @@ rotom_motor_bridge:
       - 2.0
       - 1.57
       - 1.57
+    joint_signs:
+      - -1
+      - -1
+      - -1
+      - -1
+      - -1
+      - 1

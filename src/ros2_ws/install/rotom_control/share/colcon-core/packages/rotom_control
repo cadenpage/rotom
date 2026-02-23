@@ -1,1 +1,1 @@
-ament_index_python:launch:launch_ros:rclpy:sensor_msgs
+ament_index_python:control_msgs:launch:launch_ros:rclpy:sensor_msgs:trajectory_msgs

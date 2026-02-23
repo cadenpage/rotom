@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rotom">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="use_ros2_control" default="false" />
 
     <!-- Import rotom urdf file -->
     <xacro:include filename="$(find rotom_description)/urdf/rotom.urdf.xacro" />
 
-    <!-- Import control_xacro -->
-    <xacro:include filename="rotom.ros2_control.xacro" />
-
-
-    <xacro:rotom_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+    <xacro:if value="$(arg use_ros2_control)">
+        <!-- Import control_xacro -->
+        <xacro:include filename="rotom.ros2_control.xacro" />
+        <xacro:rotom_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+    </xacro:if>
 
 </robot>
