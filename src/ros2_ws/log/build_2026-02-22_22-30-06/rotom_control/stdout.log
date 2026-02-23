@@ -1,0 +1,26 @@
+running develop
+running egg_info
+creating rotom_control.egg-info
+writing rotom_control.egg-info/PKG-INFO
+writing dependency_links to rotom_control.egg-info/dependency_links.txt
+writing entry points to rotom_control.egg-info/entry_points.txt
+writing requirements to rotom_control.egg-info/requires.txt
+writing top-level names to rotom_control.egg-info/top_level.txt
+writing manifest file 'rotom_control.egg-info/SOURCES.txt'
+reading manifest file 'rotom_control.egg-info/SOURCES.txt'
+writing manifest file 'rotom_control.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom-control.egg-link (link to .)
+Installing rotom_motor_bridge script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/rotom_control
+
+Installed /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control
+running symlink_data
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/ament_index
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/ament_index/resource_index
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/ament_index/resource_index/packages
+symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/resource/rotom_control -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/ament_index/resource_index/packages
+symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/package.xml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/launch
+symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/launch/rotom_control.launch.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/launch
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/config
+symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/config/rotom_control.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/config

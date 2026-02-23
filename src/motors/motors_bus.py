@@ -30,7 +30,16 @@ from pprint import pformat
 from typing import Protocol, TypeAlias
 
 import serial
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ModuleNotFoundError:
+    def tqdm(iterable, **_kwargs):
+        return iterable
+
+    def _tqdm_write(msg):
+        print(msg)
+
+    tqdm.write = _tqdm_write
 
 
 class DeviceAlreadyConnectedError(RuntimeError):

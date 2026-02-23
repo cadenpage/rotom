@@ -5,6 +5,7 @@ Calibrate Homing_Offset for an arm (no CLI / no argument parsing).
 
 This uses the built-in helper:
 		MotorsBus.set_half_turn_homings(...)
+Or sets a fixed homing offset for all motors.
 
 NOTE: set_half_turn_homings() calls reset_calibration() first, which resets:
 	- Homing_Offset to 0
@@ -29,18 +30,20 @@ MOTORS = {
 	"Elbow": (4, "sts3215"),
 	"Wrist": (3, "sts3215"),
 	"Flick": (2, "sts3215"),
+	"EE": (1, "sts3215"),
 }
-
 # Which motors to act on.
-ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick"]
+ARM = ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"]
 
-# One of: "show" | "set_half_turn"
+
+# One of: "show" | "set_half_turn" | "set_2047"
 MODE = "set_half_turn"
+HOME_TICKS = 2047
 
 
 def main() -> None:
-	if MODE not in {"show", "set_half_turn"}:
-		raise RuntimeError('MODE must be one of: "show", "set_half_turn"')
+	if MODE not in {"show", "set_half_turn", "set_2047"}:
+		raise RuntimeError('MODE must be one of: "show", "set_half_turn", "set_2047"')
 
 	if any(name not in MOTORS for name in ARM):
 		missing = [name for name in ARM if name not in MOTORS]
@@ -63,15 +66,22 @@ def main() -> None:
 				print(f"{name}: model={model} res={res} present={present} homing_offset={offset}")
 			return
 
-		# MODE == "set_half_turn"
 		# Homing/limit writes are safest with torque disabled.
 		bus.disable_torque(ARM)
-		offsets = bus.set_half_turn_homings(ARM)
-		for name in ARM:
-			present = bus.read("Present_Position", name, normalize=False)
-			print(f"{name}: wrote_homing_offset={offsets[name]} now_present={present}")
+		if MODE == "set_half_turn":
+			offsets = bus.set_half_turn_homings(ARM)
+			for name in ARM:
+				present = bus.read("Present_Position", name, normalize=False)
+				print(f"{name}: wrote_homing_offset={offsets[name]} now_present={present}")
 
-		print("Half-turn homings written. Torque remains disabled.")
+			print("Half-turn homings written. Torque remains disabled.")
+		else:
+			for name in ARM:
+				bus.write("Homing_Offset", name, HOME_TICKS, normalize=False)
+				present = bus.read("Present_Position", name, normalize=False)
+				print(f"{name}: wrote_homing_offset={HOME_TICKS} now_present={present}")
+
+			print("Fixed homings written. Torque remains disabled.")
 	finally:
 		# Keep torque disabled on exit.
 		bus.disconnect(disable_torque=True)
@@ -79,4 +89,3 @@ def main() -> None:
 
 if __name__ == "__main__":
 	main()
-

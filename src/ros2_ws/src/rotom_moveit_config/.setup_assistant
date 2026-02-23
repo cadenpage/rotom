@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: rotom_description
+    relative_path: urdf/rotom.urdf.xacro
+  srdf:
+    relative_path: config/rotom.srdf
+  package_settings:
+    author_name: caden
+    author_email: caden@cadenpage.com
+    generated_timestamp: 1769550558
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

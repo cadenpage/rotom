@@ -1,0 +1,3 @@
+[console_scripts]
+rotom_motor_bridge = rotom_control.ros2_motor_bridge:main
+

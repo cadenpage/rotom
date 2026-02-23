@@ -1,0 +1,54 @@
+rotom_motor_bridge:
+  ros__parameters:
+    port: "/dev/ttyACM0"
+    protocol_version: 0
+    handshake: false
+    enable_torque: true
+    publish_rate_hz: 30.0
+    command_topic: "/joint_command"
+    state_topic: "/joint_states"
+    trajectory_action: "/arm_controller/follow_joint_trajectory"
+    enable_trajectory_action: true
+    joint_names:
+      - base_to_shoulder
+      - shoulder_to_elbow
+      - elbow_to_wrist
+      - wrist_to_flick
+      - flick_to_claw
+      - flick_to_ee
+    motor_names:
+      - Base
+      - Shoulder
+      - Elbow
+      - Wrist
+      - Flick
+      - EE
+    motor_ids: [6, 5, 4, 3, 2, 1]
+    motor_models:
+      - sts3215
+      - sts3215
+      - sts3215
+      - sts3215
+      - sts3215
+      - sts3215
+    lower_limits:
+      - -3.14159
+      - -2.2
+      - -2.2
+      - -2.0
+      - -1.57
+      - -1.57
+    upper_limits:
+      - 3.14159
+      - 2.2
+      - 2.2
+      - 2.0
+      - 1.57
+      - 1.57
+    joint_signs:
+      - -1
+      - -1
+      - -1
+      - -1
+      - -1
+      - 1

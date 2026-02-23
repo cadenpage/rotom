@@ -52,9 +52,10 @@ DEFAULT_MOTORS = {
     "Elbow": (4, "sts3215"),
     "Wrist": (3, "sts3215"),
     "Flick": (2, "sts3215"),
+    "EE": (1, "sts3215"),
 }
 DEFAULT_GROUPS = {
-    "arm": ["Base", "Shoulder", "Elbow", "Wrist", "Flick"],
+    "arm": ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"],
 }
 
 
