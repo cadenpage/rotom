@@ -9,10 +9,11 @@ Rotom is a custom robot arm project that combines mechanical design, low-level s
 ---
 
 ## Demo
-
+![Interactive Control](imgs/interactive_control.gif)
+![MoveIt2 Inverse Kinematics](imgs/moveit_ik.gif)
 ![MoveIt2 Demo](imgs/moveit2.gif)
 
----
+---∏
 ## Abstract
 This repository contains the full development workflow: CAD-to-URDF modeling, servo-bus motor control in Python, ROS 2 launch and visualization, and cross-machine networking for remote RViz over WAN/VPN.
 
