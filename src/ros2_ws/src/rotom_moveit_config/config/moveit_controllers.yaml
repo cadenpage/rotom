@@ -14,3 +14,8 @@ moveit_simple_controller_manager:
       - wrist_to_flick
       - flick_to_claw
       - flick_to_ee
+
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.03

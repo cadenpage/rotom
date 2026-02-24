@@ -1,0 +1,39 @@
+[2.555s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description': PIXI_PROMPT=(rotom) PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/build --no-deps symlink_data
+[3.271s] running develop
+[3.758s] running egg_info
+[3.760s] creating rotom_description.egg-info
+[3.760s] writing rotom_description.egg-info/PKG-INFO
+[3.761s] writing dependency_links to rotom_description.egg-info/dependency_links.txt
+[3.761s] writing entry points to rotom_description.egg-info/entry_points.txt
+[3.761s] writing requirements to rotom_description.egg-info/requires.txt
+[3.761s] writing top-level names to rotom_description.egg-info/top_level.txt
+[3.762s] writing manifest file 'rotom_description.egg-info/SOURCES.txt'
+[3.766s] reading manifest file 'rotom_description.egg-info/SOURCES.txt'
+[3.768s] writing manifest file 'rotom_description.egg-info/SOURCES.txt'
+[3.772s] running build_ext
+[3.772s] Creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages/rotom-description.egg-link (link to .)
+[3.774s] 
+[3.775s] Installed /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description
+[3.775s] running symlink_data
+[3.775s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/ament_index
+[3.775s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/ament_index/resource_index
+[3.775s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/ament_index/resource_index/packages
+[3.776s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/resource/rotom_description -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/ament_index/resource_index/packages
+[3.776s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/package.xml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description
+[3.776s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/launch
+[3.777s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/launch/view_robot.launch.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/launch
+[3.777s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/urdf
+[3.777s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/urdf/rotom.urdf.xacro -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/urdf
+[3.777s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/rviz
+[3.777s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/rviz/view_robot.rviz -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/rviz
+[3.777s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes
+[3.778s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.778s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/flick2claw.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.778s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/elbow2wrist.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.779s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/wrist2flick.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.779s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/origin2base.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.779s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/base2shoulder.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.779s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/EE.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.779s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/meshes/visual/shoulder2elbow.stl -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/visual
+[3.780s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/share/rotom_description/meshes/collision
+[3.882s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description' returned '0': PIXI_PROMPT=(rotom) PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/build --no-deps symlink_data

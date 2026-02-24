@@ -178,7 +178,7 @@
     <child link="shoulder_elbow"/>
     <origin xyz="0.0166 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-0.055237" upper="0.823949" effort="5.0" velocity="3.0"/>
+    <limit lower="-0.446497" upper="0.322215" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="elbow_to_wrist" type="revolute">
@@ -186,7 +186,7 @@
     <child link="elbow_wrist"/>
     <origin xyz="0.0868 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.410073" upper="1.997731" effort="5.0" velocity="3.0"/>
+    <limit lower="-1.410073" upper="2.192594" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="wrist_to_flick" type="revolute">
@@ -202,7 +202,7 @@
     <child link="flick_claw"/>
     <origin xyz="0.0206 -0.01825 0.02265" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-0.306871" upper="1.647898" effort="5.0" velocity="3.0"/>
+    <limit lower="-0.348299" upper="1.480653" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="flick_to_ee" type="revolute">
@@ -210,7 +210,7 @@
     <child link="ee"/>
     <origin xyz="0.0668 0.0365 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.884188" upper="1.885723" effort="5.0" velocity="3.0"/>
+    <limit lower="-2.023815" upper="2.178785" effort="5.0" velocity="3.0"/>
   </joint>
 
   <joint name="tool0" type="fixed">
