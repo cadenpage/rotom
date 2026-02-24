@@ -4,6 +4,9 @@ rotom_motor_bridge:
     protocol_version: 0
     handshake: false
     enable_torque: true
+    configure_motors_on_start: true
+    maximum_acceleration: 100
+    acceleration: 100
     publish_rate_hz: 30.0
     command_topic: "/joint_command"
     state_topic: "/joint_states"

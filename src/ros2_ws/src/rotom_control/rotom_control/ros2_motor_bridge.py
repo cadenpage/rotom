@@ -69,6 +69,9 @@ class RotomMotorBridge(Node):
         self.declare_parameter("protocol_version", 0)
         self.declare_parameter("handshake", False)
         self.declare_parameter("enable_torque", True)
+        self.declare_parameter("configure_motors_on_start", True)
+        self.declare_parameter("maximum_acceleration", 254)
+        self.declare_parameter("acceleration", 254)
         self.declare_parameter("publish_rate_hz", 30.0)
         self.declare_parameter("command_topic", "/joint_command")
         self.declare_parameter("state_topic", "/joint_states")
@@ -86,6 +89,9 @@ class RotomMotorBridge(Node):
         self.protocol_version = int(self.get_parameter("protocol_version").value)
         self.handshake = bool(self.get_parameter("handshake").value)
         self.enable_torque = bool(self.get_parameter("enable_torque").value)
+        self.configure_motors_on_start = bool(self.get_parameter("configure_motors_on_start").value)
+        self.maximum_acceleration = int(self.get_parameter("maximum_acceleration").value)
+        self.acceleration = int(self.get_parameter("acceleration").value)
         self.publish_rate_hz = float(self.get_parameter("publish_rate_hz").value)
         self.command_topic = self.get_parameter("command_topic").value
         self.state_topic = self.get_parameter("state_topic").value
@@ -156,6 +162,12 @@ class RotomMotorBridge(Node):
             protocol_version=self.protocol_version,
         )
         bus.connect(handshake=self.handshake)
+        if self.configure_motors_on_start:
+            bus.configure_motors(
+                return_delay_time=0,
+                maximum_acceleration=self.maximum_acceleration,
+                acceleration=self.acceleration,
+            )
         bus.calibration = bus.read_calibration()
         if self.enable_torque:
             bus.enable_torque()
