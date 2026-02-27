@@ -22,6 +22,8 @@ DEFAULT_JOINT_NAMES = [
 DEFAULT_MOTOR_NAMES = ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"]
 DEFAULT_MOTOR_IDS = [6, 5, 4, 3, 2, 1]
 DEFAULT_MOTOR_MODELS = ["sts3215"] * 6
+# Keep this in sync with rotom_control/config/rotom_control.yaml joint_signs.
+DEFAULT_JOINT_SIGNS = [-1, -1, -1, -1, -1, 1]
 
 
 def ticks_to_rad(raw: int, center_tick: int, max_res: int) -> float:
@@ -62,19 +64,26 @@ def main() -> None:
     calibration = bus.read_calibration()
 
     joint_limits = []
-    for joint_name, motor_name, model in zip(
-        DEFAULT_JOINT_NAMES, DEFAULT_MOTOR_NAMES, DEFAULT_MOTOR_MODELS
+    for joint_name, motor_name, model, joint_sign in zip(
+        DEFAULT_JOINT_NAMES, DEFAULT_MOTOR_NAMES, DEFAULT_MOTOR_MODELS, DEFAULT_JOINT_SIGNS
     ):
         cal = calibration[motor_name]
         max_res = MODEL_RESOLUTION[model] - 1
         center_tick = int(max_res / 2)
         print(
-            f"{motor_name}: min={cal.range_min} max={cal.range_max} homing_offset={cal.homing_offset}"
+            f"{motor_name}: min={cal.range_min} max={cal.range_max} homing_offset={cal.homing_offset} "
+            f"joint_sign={joint_sign}"
         )
-        lower_raw = ticks_to_rad(cal.range_min, center_tick, max_res)
-        upper_raw = ticks_to_rad(cal.range_max, center_tick, max_res)
+
+        motor_lower_rad = ticks_to_rad(cal.range_min, center_tick, max_res)
+        motor_upper_rad = ticks_to_rad(cal.range_max, center_tick, max_res)
+
+        # Convert motor-space interval to joint-space interval.
+        lower_raw = joint_sign * motor_lower_rad
+        upper_raw = joint_sign * motor_upper_rad
         if lower_raw > upper_raw:
             lower_raw, upper_raw = upper_raw, lower_raw
+
         span = upper_raw - lower_raw
         if span <= 0:
             raise ValueError(f"Invalid range for {motor_name}: min={cal.range_min} max={cal.range_max}")

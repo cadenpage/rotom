@@ -4,6 +4,3 @@ source;share/rotom_description/hook/pythonpath.sh
 source;share/rotom_description/hook/ament_prefix_path.ps1
 source;share/rotom_description/hook/ament_prefix_path.dsv
 source;share/rotom_description/hook/ament_prefix_path.sh
-source;../../build/rotom_description/share/rotom_description/hook/pythonpath_develop.ps1
-source;../../build/rotom_description/share/rotom_description/hook/pythonpath_develop.dsv
-source;../../build/rotom_description/share/rotom_description/hook/pythonpath_develop.sh

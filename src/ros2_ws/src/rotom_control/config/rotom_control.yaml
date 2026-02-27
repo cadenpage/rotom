@@ -5,13 +5,17 @@ rotom_motor_bridge:
     handshake: false
     enable_torque: true
     configure_motors_on_start: true
-    maximum_acceleration: 100
-    acceleration: 100
-    publish_rate_hz: 30.0
+    maximum_acceleration: 35
+    acceleration: 25
+    publish_rate_hz: 15.0
     command_topic: "/joint_command"
     state_topic: "/joint_states"
     trajectory_action: "/arm_controller/follow_joint_trajectory"
     enable_trajectory_action: true
+    trajectory_goal_tolerance: 0.08
+    trajectory_goal_timeout_sec: 4.0
+    sync_read_retries: 2
+    sync_write_retries: 1
     joint_names:
       - base_to_shoulder
       - shoulder_to_elbow
@@ -35,19 +39,19 @@ rotom_motor_bridge:
       - sts3215
       - sts3215
     lower_limits:
-      - -3.14159
-      - -2.2
-      - -2.2
-      - -2.0
-      - -1.57
-      - -1.57
+      - -3.141593
+      - -0.322215
+      - -2.192594
+      - -3.141593
+      - -1.480653
+      - -2.023815
     upper_limits:
-      - 3.14159
-      - 2.2
-      - 2.2
-      - 2.0
-      - 1.57
-      - 1.57
+      - 3.141593
+      - 0.446497
+      - 1.410073
+      - 3.141593
+      - 0.348299
+      - 2.178785
     joint_signs:
       - -1
       - -1

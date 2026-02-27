@@ -1,1 +1,225 @@
-/home/caden/Documents/rotom/src/ros2_ws/build/rotom_description/urdf/rotom.urdf.xacro
+<?xml version="1.0"?>
+<robot name="rotom" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="mesh_scale" value="0.001"/>
+
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.0 0.0 1.0 1.0"/>
+  </material>
+
+  <link name="world"/>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="blue"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="base_shoulder">
+    <visual>
+    <!---1.570796-->
+      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/base2shoulder.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/base2shoulder.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="shoulder_elbow">
+    <visual>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <material name="gray"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/shoulder2elbow.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/shoulder2elbow.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="elbow_wrist">
+    <visual>
+      <origin xyz="0 -0.006 0" rpy="3.14159265359 0 0"/>
+      <material name="blue"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/elbow2wrist.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.006 0" rpy="3.14159265359 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/elbow2wrist.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="wrist_flick">
+    <visual>
+      <origin xyz="0.0206 0 -0.01285" rpy="0 0 0"/>
+      <material name="gray"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/wrist2flick.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0206 0 -0.01285" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/wrist2flick.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  
+
+
+  <link name="flick_claw">
+    <visual>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <material name="blue"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/flick2claw.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0.0405 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/flick2claw.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="ee">
+    <visual>
+      <origin xyz="0 0.003 0" rpy="0 0 0"/>
+      <material name="gray"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/EE.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0.003 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/EE.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="tool0">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  
+
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <joint name="base_to_shoulder" type="revolute">
+    <parent link="base_link"/>
+    <child link="base_shoulder"/>
+    <origin xyz="0 -0.03 0.04025" rpy="1.570796 -1.570796 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
+  </joint>
+
+
+  <joint name="shoulder_to_elbow" type="revolute">
+    <parent link="base_shoulder"/>
+    <child link="shoulder_elbow"/>
+    <origin xyz="0.0166 -0.01825 0.02265" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.322215" upper="0.446497" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="elbow_to_wrist" type="revolute">
+    <parent link="shoulder_elbow"/>
+    <child link="elbow_wrist"/>
+    <origin xyz="0.0868 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.192594" upper="1.410073" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="wrist_to_flick" type="revolute">
+    <parent link="elbow_wrist"/>
+    <child link="wrist_flick"/>
+    <origin xyz="0.06025 0.01825 -0.0285" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="flick_to_claw" type="revolute">
+    <parent link="wrist_flick"/>
+    <child link="flick_claw"/>
+    <origin xyz="0.0206 -0.01825 0.02265" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.480653" upper="0.348299" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="flick_to_ee" type="revolute">
+    <parent link="flick_claw"/>
+    <child link="ee"/>
+    <origin xyz="0.0668 0.0365 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.023815" upper="2.178785" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="tool0" type="fixed">
+    <parent link="ee"/>
+    <child link="tool0"/>
+    <origin xyz="0.055 -.01825 0" rpy="0 0 0"/>
+  </joint>
+
+
+
+
+</robot>

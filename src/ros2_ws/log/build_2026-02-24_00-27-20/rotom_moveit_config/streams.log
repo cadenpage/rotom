@@ -1,0 +1,63 @@
+[0.037s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake /home/caden/Documents/rotom/src/ros2_ws/src/rotom_moveit_config -DPython3_EXECUTABLE=/usr/bin/python3 -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config
+[0.185s] -- The C compiler identification is GNU 11.4.0
+[0.330s] -- The CXX compiler identification is GNU 11.4.0
+[0.357s] -- Detecting C compiler ABI info
+[0.529s] -- Detecting C compiler ABI info - done
+[0.547s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.550s] -- Detecting C compile features
+[0.550s] -- Detecting C compile features - done
+[0.559s] -- Detecting CXX compiler ABI info
+[0.739s] -- Detecting CXX compiler ABI info - done
+[0.766s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.766s] -- Detecting CXX compile features
+[0.768s] -- Detecting CXX compile features - done
+[0.783s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[1.185s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[1.358s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[1.634s] -- Configuring done
+[1.645s] -- Generating done
+[1.650s] -- Build files have been written to: /home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config
+[1.664s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config' returned '0': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake /home/caden/Documents/rotom/src/ros2_ws/src/rotom_moveit_config -DPython3_EXECUTABLE=/usr/bin/python3 -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config
+[1.670s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake --build /home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config -- -j6 -l6
+[1.752s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config' returned '0': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake --build /home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config -- -j6 -l6
+[1.775s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake --install /home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config
+[1.793s] -- Install configuration: ""
+[1.798s] -- Execute custom install script
+[1.798s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/ament_index/resource_index/package_run_dependencies/rotom_moveit_config
+[1.816s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/ament_index/resource_index/parent_prefix_path/rotom_moveit_config
+[1.844s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/environment/ament_prefix_path.sh
+[1.879s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/environment/ament_prefix_path.dsv
+[1.913s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/environment/path.sh
+[1.934s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/environment/path.dsv
+[1.953s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/local_setup.bash
+[1.970s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/local_setup.sh
+[1.990s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/local_setup.zsh
+[2.008s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/local_setup.dsv
+[2.028s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/package.dsv
+[2.047s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/ament_index/resource_index/packages/rotom_moveit_config
+[2.070s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/cmake/rotom_moveit_configConfig.cmake
+[2.090s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/cmake/rotom_moveit_configConfig-version.cmake
+[2.110s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/package.xml
+[2.132s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/__pycache__/demo.launch.cpython-310.pyc
+[2.154s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/__pycache__/move_group.launch.cpython-310.pyc
+[2.174s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/__pycache__/moveit_rviz.launch.cpython-310.pyc
+[2.199s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/demo.launch.py
+[2.218s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/move_group.launch.py
+[2.237s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/moveit_rviz.launch.py
+[2.256s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/rsp.launch.py
+[2.277s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/setup_assistant.launch.py
+[2.296s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/spawn_controllers.launch.py
+[2.318s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/static_virtual_joint_tfs.launch.py
+[2.339s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/launch/warehouse_db.launch.py
+[2.361s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/initial_positions.yaml
+[2.380s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/joint_limits.yaml
+[2.401s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/kinematics.yaml
+[2.421s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/moveit.rviz
+[2.442s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/moveit_controllers.yaml
+[2.460s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/pilz_cartesian_limits.yaml
+[2.480s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/ros2_controllers.yaml
+[2.500s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/rotom.ros2_control.xacro
+[2.520s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/rotom.srdf
+[2.541s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/config/rotom.urdf.xacro
+[2.562s] -- Symlinking: /home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config/share/rotom_moveit_config/.setup_assistant
+[2.589s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config' returned '0': AMENT_PREFIX_PATH=/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_moveit_config:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_description:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control:/opt/ros/humble PIXI_PROMPT=(rotom) /usr/bin/cmake --install /home/caden/Documents/rotom/src/ros2_ws/build/rotom_moveit_config

@@ -1,0 +1,25 @@
+[2.294s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_control': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_control build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log --single-version-externally-managed install_data
+[2.914s] running egg_info
+[2.916s] writing ../../build/rotom_control/rotom_control.egg-info/PKG-INFO
+[2.916s] writing dependency_links to ../../build/rotom_control/rotom_control.egg-info/dependency_links.txt
+[2.917s] writing entry points to ../../build/rotom_control/rotom_control.egg-info/entry_points.txt
+[2.917s] writing requirements to ../../build/rotom_control/rotom_control.egg-info/requires.txt
+[2.917s] writing top-level names to ../../build/rotom_control/rotom_control.egg-info/top_level.txt
+[2.921s] reading manifest file '../../build/rotom_control/rotom_control.egg-info/SOURCES.txt'
+[2.923s] writing manifest file '../../build/rotom_control/rotom_control.egg-info/SOURCES.txt'
+[2.924s] running build
+[2.924s] running build_py
+[2.924s] copying rotom_control/ros2_motor_bridge.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control
+[2.925s] running install
+[2.925s] running install_lib
+[2.928s] copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control/ros2_motor_bridge.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control
+[2.929s] byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control/ros2_motor_bridge.py to ros2_motor_bridge.cpython-310.pyc
+[2.937s] running install_data
+[2.937s] copying config/rotom_control.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/config
+[2.937s] running install_egg_info
+[2.942s] removing '/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control-0.0.1-py3.10.egg-info' (and everything under it)
+[2.942s] Copying ../../build/rotom_control/rotom_control.egg-info to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control-0.0.1-py3.10.egg-info
+[2.945s] running install_scripts
+[2.996s] Installing rotom_motor_bridge script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/rotom_control
+[2.996s] writing list of installed files to '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log'
+[3.071s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_control' returned '0': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_control build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log --single-version-externally-managed install_data

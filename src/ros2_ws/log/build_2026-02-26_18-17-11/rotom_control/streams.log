@@ -1,0 +1,38 @@
+[2.563s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build
+[3.301s] running develop
+[3.834s] Removing /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom-control.egg-link (link to .)
+[3.948s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control' returned '0': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build
+[3.949s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_control': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_control build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log --single-version-externally-managed install_data --force
+[4.625s] running egg_info
+[4.627s] writing ../../build/rotom_control/rotom_control.egg-info/PKG-INFO
+[4.629s] writing dependency_links to ../../build/rotom_control/rotom_control.egg-info/dependency_links.txt
+[4.629s] writing entry points to ../../build/rotom_control/rotom_control.egg-info/entry_points.txt
+[4.629s] writing requirements to ../../build/rotom_control/rotom_control.egg-info/requires.txt
+[4.629s] writing top-level names to ../../build/rotom_control/rotom_control.egg-info/top_level.txt
+[4.635s] reading manifest file '../../build/rotom_control/rotom_control.egg-info/SOURCES.txt'
+[4.637s] writing manifest file '../../build/rotom_control/rotom_control.egg-info/SOURCES.txt'
+[4.638s] running build
+[4.638s] running build_py
+[4.640s] creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build
+[4.641s] creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib
+[4.641s] creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control
+[4.641s] copying rotom_control/ros2_motor_bridge.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control
+[4.641s] copying rotom_control/__init__.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control
+[4.641s] running install
+[4.642s] running install_lib
+[4.643s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control
+[4.644s] copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control/ros2_motor_bridge.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control
+[4.644s] copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build/lib/rotom_control/__init__.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control
+[4.646s] byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control/ros2_motor_bridge.py to ros2_motor_bridge.cpython-310.pyc
+[4.655s] byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control/__init__.py to __init__.cpython-310.pyc
+[4.655s] running install_data
+[4.656s] copying resource/rotom_control -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/ament_index/resource_index/packages
+[4.656s] copying package.xml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control
+[4.657s] copying launch/rotom_control.launch.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/launch
+[4.657s] copying config/rotom_control.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/share/rotom_control/config
+[4.657s] running install_egg_info
+[4.660s] Copying ../../build/rotom_control/rotom_control.egg-info to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages/rotom_control-0.0.1-py3.10.egg-info
+[4.664s] running install_scripts
+[4.720s] Installing rotom_motor_bridge script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/rotom_control
+[4.722s] writing list of installed files to '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log'
+[4.812s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/src/rotom_control' returned '0': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/rotom_control build --build-base /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/build install --record /home/caden/Documents/rotom/src/ros2_ws/build/rotom_control/install.log --single-version-externally-managed install_data --force
