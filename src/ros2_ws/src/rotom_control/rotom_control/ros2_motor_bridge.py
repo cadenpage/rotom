@@ -125,6 +125,8 @@ class RotomMotorBridge(Node):
         self._bus_lock = threading.RLock()
         self._last_read_error_log_ns = 0
         self._read_error_log_period_ns = 500_000_000  # 0.5s
+        self._last_read_diag_log_ns = 0
+        self._read_diag_log_period_ns = 5_000_000_000  # 5s
 
         self.bus = self._connect_bus()
 
@@ -262,6 +264,9 @@ class RotomMotorBridge(Node):
             if now_ns - self._last_read_error_log_ns >= self._read_error_log_period_ns:
                 self.get_logger().error(f"Failed to read motor positions: {exc}")
                 self._last_read_error_log_ns = now_ns
+            if now_ns - self._last_read_diag_log_ns >= self._read_diag_log_period_ns:
+                self.get_logger().error(self._diagnose_sync_read_failure())
+                self._last_read_diag_log_ns = now_ns
             return None
 
         current: Dict[str, float] = {}
@@ -271,6 +276,30 @@ class RotomMotorBridge(Node):
             rad = self._raw_to_rad(joint_name, motor_name, raw)
             current[joint_name] = self._project_to_joint_limits(joint_name, rad)
         return current
+
+    def _diagnose_sync_read_failure(self) -> str:
+        responding = []
+        missing = []
+        with self._bus_lock:
+            for motor_name in self.motor_names:
+                motor_id = self.bus.motors[motor_name].id
+                label = f"{motor_name}(id={motor_id})"
+                try:
+                    self.bus.read("Present_Position", motor_name, normalize=False, num_retry=0)
+                    responding.append(label)
+                except Exception:
+                    missing.append(label)
+
+        if not missing:
+            return (
+                "Sync read failed, but per-motor probe succeeded for all configured motors: "
+                f"{responding}"
+            )
+
+        return (
+            "Sync read failed; non-responding motors during per-motor probe: "
+            f"{missing}; responding motors: {responding}"
+        )
 
     def _goal_reached(
         self, desired: Dict[str, float], current: Dict[str, float], per_joint_tol: Dict[str, float]

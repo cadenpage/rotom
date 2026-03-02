@@ -1,0 +1,19 @@
+[1.581s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build --no-deps symlink_data
+[2.231s] running develop
+[2.706s] running egg_info
+[2.707s] writing rotom_vision.egg-info/PKG-INFO
+[2.707s] writing dependency_links to rotom_vision.egg-info/dependency_links.txt
+[2.707s] writing entry points to rotom_vision.egg-info/entry_points.txt
+[2.708s] writing requirements to rotom_vision.egg-info/requires.txt
+[2.708s] writing top-level names to rotom_vision.egg-info/top_level.txt
+[2.713s] reading manifest file 'rotom_vision.egg-info/SOURCES.txt'
+[2.714s] writing manifest file 'rotom_vision.egg-info/SOURCES.txt'
+[2.718s] running build_ext
+[2.718s] Creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom-vision.egg-link (link to .)
+[2.720s] Installing aruco_tracker script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.720s] Installing marker_follower script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.721s] Installing stereo_splitter script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.721s] 
+[2.722s] Installed /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision
+[2.722s] running symlink_data
+[2.806s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision' returned '0': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build --no-deps symlink_data

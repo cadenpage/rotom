@@ -1,0 +1,30 @@
+[1.583s] Invoking command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build --no-deps symlink_data
+[2.223s] running develop
+[2.690s] running egg_info
+[2.690s] creating rotom_vision.egg-info
+[2.690s] writing rotom_vision.egg-info/PKG-INFO
+[2.691s] writing dependency_links to rotom_vision.egg-info/dependency_links.txt
+[2.691s] writing entry points to rotom_vision.egg-info/entry_points.txt
+[2.691s] writing requirements to rotom_vision.egg-info/requires.txt
+[2.691s] writing top-level names to rotom_vision.egg-info/top_level.txt
+[2.691s] writing manifest file 'rotom_vision.egg-info/SOURCES.txt'
+[2.696s] reading manifest file 'rotom_vision.egg-info/SOURCES.txt'
+[2.697s] writing manifest file 'rotom_vision.egg-info/SOURCES.txt'
+[2.701s] running build_ext
+[2.701s] Creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom-vision.egg-link (link to .)
+[2.703s] Installing aruco_tracker script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.703s] Installing marker_follower script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.704s] Installing stereo_splitter script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+[2.704s] 
+[2.705s] Installed /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision
+[2.705s] running symlink_data
+[2.706s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/ament_index
+[2.706s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/ament_index/resource_index
+[2.706s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/ament_index/resource_index/packages
+[2.706s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/resource/rotom_vision -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/ament_index/resource_index/packages
+[2.707s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/package.xml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision
+[2.707s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/launch
+[2.707s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/launch/vision_pipeline.launch.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/launch
+[2.707s] creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/config
+[2.708s] symbolically linking /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/config/vision_pipeline.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/config
+[2.790s] Invoked command in '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision' returned '0': PYTHONPATH=/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build --no-deps symlink_data
