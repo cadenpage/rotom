@@ -15,6 +15,7 @@ def generate_launch_description():
     params_file = LaunchConfiguration("params_file")
     start_camera = LaunchConfiguration("start_camera")
     camera_device = LaunchConfiguration("camera_device")
+    camera_pixel_format = LaunchConfiguration("camera_pixel_format")
 
     return LaunchDescription(
         [
@@ -24,6 +25,7 @@ def generate_launch_description():
                 "camera_device",
                 default_value="/dev/v4l/by-id/usb-3D_USB_Camera_3D_USB_Camera_01.00.00-video-index0",
             ),
+            DeclareLaunchArgument("camera_pixel_format", default_value="YUYV"),
             Node(
                 condition=IfCondition(start_camera),
                 package="v4l2_camera",
@@ -33,8 +35,8 @@ def generate_launch_description():
                 parameters=[
                     {
                         "video_device": camera_device,
-                        "pixel_format": "YUYV",
-                        "image_size": [1280, 480],
+                        "pixel_format": camera_pixel_format,
+                        "image_size": [640, 240],
                         "output_encoding": "rgb8",
                     }
                 ],

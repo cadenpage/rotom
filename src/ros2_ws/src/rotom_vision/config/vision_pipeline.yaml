@@ -6,6 +6,8 @@ stereo_splitter:
     output_camera_info_topic: "/camera/selected/camera_info"
     eye: "left"
     output_frame_id: ""
+    output_encoding: "bgr8"
+    output_reliability: "reliable"
     publish_synthetic_camera_info_if_missing: true
     synthetic_focal_length_px: -1.0
     synthetic_distortion_model: "plumb_bob"
