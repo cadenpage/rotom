@@ -1,11 +1,12 @@
 import copy
 from typing import Optional
 
-from cv_bridge import CvBridge, CvBridgeError
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image
+import yaml
 
 
 class StereoSplitterNode(Node):
@@ -24,6 +25,7 @@ class StereoSplitterNode(Node):
         self.declare_parameter("publish_synthetic_camera_info_if_missing", True)
         self.declare_parameter("synthetic_focal_length_px", -1.0)
         self.declare_parameter("synthetic_distortion_model", "plumb_bob")
+        self.declare_parameter("calibration_file", "")
 
         self.input_image_topic = str(self.get_parameter("input_image_topic").value)
         self.input_camera_info_topic = str(self.get_parameter("input_camera_info_topic").value)
@@ -39,6 +41,15 @@ class StereoSplitterNode(Node):
         )
         self.synthetic_focal_length_px = float(self.get_parameter("synthetic_focal_length_px").value)
         self.synthetic_distortion_model = str(self.get_parameter("synthetic_distortion_model").value)
+        calibration_file = str(self.get_parameter("calibration_file").value).strip()
+
+        self._loaded_calibration: Optional[CameraInfo] = None
+        if calibration_file:
+            self._loaded_calibration = self._load_calibration_yaml(calibration_file)
+            if self._loaded_calibration:
+                self.get_logger().info(f"Loaded calibration from {calibration_file}")
+            else:
+                self.get_logger().error(f"Failed to load calibration from {calibration_file}")
 
         if self.eye not in {"left", "right"}:
             raise ValueError(f"Unsupported eye='{self.eye}'. Use 'left' or 'right'.")
@@ -48,7 +59,6 @@ class StereoSplitterNode(Node):
                 "Use 'reliable' or 'best_effort'."
             )
 
-        self.bridge = CvBridge()
         self.latest_camera_info: Optional[CameraInfo] = None
         self._last_warn_ns = 0
         self._warn_period_ns = 2_000_000_000
@@ -86,16 +96,24 @@ class StereoSplitterNode(Node):
 
     def _image_cb(self, msg: Image) -> None:
         self._last_image_rx_ns = self.get_clock().now().nanoseconds
-        desired_encoding = self.output_encoding if self.output_encoding else "passthrough"
-        try:
-            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding=desired_encoding)
-        except CvBridgeError as exc:
-            self.get_logger().error(f"Failed to convert image: {exc}")
+
+        # Determine channels from encoding
+        enc = msg.encoding.lower()
+        if enc in ("rgb8", "bgr8"):
+            channels = 3
+        elif enc in ("rgba8", "bgra8"):
+            channels = 4
+        elif enc in ("mono8",):
+            channels = 1
+        else:
+            self.get_logger().error(f"Unsupported encoding: {msg.encoding}")
             return
 
-        if frame.ndim < 2:
-            self.get_logger().error("Unexpected image shape with fewer than 2 dimensions.")
-            return
+        data = np.frombuffer(msg.data, dtype=np.uint8)
+        if channels == 1:
+            frame = data.reshape(msg.height, msg.width)
+        else:
+            frame = data.reshape(msg.height, msg.width, channels)
 
         height, width = frame.shape[:2]
         if width < 2:
@@ -103,19 +121,36 @@ class StereoSplitterNode(Node):
             return
 
         half_width = width // 2
-        if self.eye == "left":
-            x_offset = 0
-        else:
-            x_offset = width - half_width
+        x_offset = 0 if self.eye == "left" else width - half_width
+        cropped = np.ascontiguousarray(frame[:, x_offset : x_offset + half_width])
 
-        cropped = frame[:, x_offset : x_offset + half_width]
+        # Convert to requested output encoding (only rgb8<->bgr8 flip needed)
+        out_enc = self.output_encoding if self.output_encoding else enc
+        if out_enc != enc:
+            if enc in ("rgb8", "bgr8") and out_enc in ("rgb8", "bgr8"):
+                cropped = cropped[:, :, ::-1]  # flip R<->B
+            else:
+                self.get_logger().error(f"Cannot convert {enc} -> {out_enc}")
+                return
 
-        encoding = desired_encoding if desired_encoding else (msg.encoding if msg.encoding else "passthrough")
-        out_image = self.bridge.cv2_to_imgmsg(cropped, encoding=encoding)
+        out_image = Image()
         out_image.header = msg.header
         if self.output_frame_id:
             out_image.header.frame_id = self.output_frame_id
+        out_image.height = cropped.shape[0]
+        out_image.width = cropped.shape[1]
+        out_image.encoding = out_enc
+        out_image.is_bigendian = 0
+        out_image.step = cropped.strides[0]
+        out_image.data = cropped.tobytes()
         self.image_pub.publish(out_image)
+
+        # Use file-loaded calibration if available (highest priority)
+        if self._loaded_calibration is not None:
+            cal = copy.deepcopy(self._loaded_calibration)
+            cal.header = out_image.header
+            self.camera_info_pub.publish(cal)
+            return
 
         if self.latest_camera_info is None or not self._is_camera_info_valid(self.latest_camera_info):
             now_ns = self.get_clock().now().nanoseconds
@@ -135,6 +170,29 @@ class StereoSplitterNode(Node):
 
         cropped_info = self._crop_camera_info(self.latest_camera_info, x_offset, half_width, height, out_image.header)
         self.camera_info_pub.publish(cropped_info)
+
+    def _load_calibration_yaml(self, path: str) -> Optional[CameraInfo]:
+        """Load a ROS camera_calibration YAML file and return a CameraInfo message."""
+        try:
+            with open(path, "r") as f:
+                data = yaml.safe_load(f)
+        except Exception as exc:
+            self.get_logger().error(f"Cannot read calibration file '{path}': {exc}")
+            return None
+
+        try:
+            msg = CameraInfo()
+            msg.width = int(data["image_width"])
+            msg.height = int(data["image_height"])
+            msg.distortion_model = str(data.get("distortion_model", "plumb_bob"))
+            msg.k = [float(v) for v in data["camera_matrix"]["data"]]
+            msg.d = [float(v) for v in data["distortion_coefficients"]["data"]]
+            msg.r = [float(v) for v in data["rectification_matrix"]["data"]]
+            msg.p = [float(v) for v in data["projection_matrix"]["data"]]
+            return msg
+        except (KeyError, TypeError, ValueError) as exc:
+            self.get_logger().error(f"Malformed calibration YAML '{path}': {exc}")
+            return None
 
     def _crop_camera_info(
         self,

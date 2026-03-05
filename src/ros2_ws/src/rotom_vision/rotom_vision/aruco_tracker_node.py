@@ -1,7 +1,6 @@
 from typing import Dict, Optional, Set
 
 import cv2
-from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import TransformStamped
 import numpy as np
 import rclpy
@@ -61,14 +60,23 @@ class ArucoTrackerNode(Node):
             supported = ", ".join(sorted(ARUCO_DICT_BY_NAME))
             raise ValueError(f"Unsupported dictionary '{self.dict_name}'. Supported: {supported}")
 
-        self.bridge = CvBridge()
         self.tf_broadcaster = TransformBroadcaster(self)
         self.debug_pub = None
         if self.publish_debug_image:
             self.debug_pub = self.create_publisher(Image, self.debug_image_topic, qos_profile_sensor_data)
 
-        self.aruco_dict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT_BY_NAME[self.dict_name])
-        self.detector_params = cv2.aruco.DetectorParameters_create()
+        aruco_dict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT_BY_NAME[self.dict_name])
+        detector_params = cv2.aruco.DetectorParameters()
+        self.detector = cv2.aruco.ArucoDetector(aruco_dict, detector_params)
+
+        # Object points for a square marker (used by solvePnP)
+        h = self.marker_size_m / 2.0
+        self._marker_obj_pts = np.array([
+            [-h,  h, 0.0],
+            [ h,  h, 0.0],
+            [ h, -h, 0.0],
+            [-h, -h, 0.0],
+        ], dtype=np.float64)
 
         self.camera_matrix: Optional[np.ndarray] = None
         self.dist_coeffs: Optional[np.ndarray] = None
@@ -93,6 +101,28 @@ class ArucoTrackerNode(Node):
         else:
             self.dist_coeffs = np.zeros(5, dtype=np.float64)
 
+    @staticmethod
+    def _imgmsg_to_bgr(msg: Image) -> Optional[np.ndarray]:
+        enc = msg.encoding.lower()
+        data = np.frombuffer(msg.data, dtype=np.uint8)
+        if enc in ("bgr8", "rgb8"):
+            frame = data.reshape(msg.height, msg.width, 3)
+            if enc == "rgb8":
+                frame = frame[:, :, ::-1]
+            return np.ascontiguousarray(frame)
+        elif enc in ("bgra8", "rgba8"):
+            frame = data.reshape(msg.height, msg.width, 4)
+            if enc == "rgba8":
+                frame = frame[:, :, [2, 1, 0, 3]]
+            return np.ascontiguousarray(frame[:, :, :3])
+        elif enc == "mono8":
+            gray = data.reshape(msg.height, msg.width)
+            return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+        elif enc == "yuyv":
+            yuv = data.reshape(msg.height, msg.width, 2)
+            return cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_YUYV)
+        return None
+
     def _image_cb(self, msg: Image) -> None:
         if self.camera_matrix is None or self.dist_coeffs is None:
             now_ns = self.get_clock().now().nanoseconds
@@ -101,18 +131,13 @@ class ArucoTrackerNode(Node):
                 self._last_no_camera_info_warn_ns = now_ns
             return
 
-        try:
-            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-        except CvBridgeError as exc:
-            self.get_logger().error(f"Failed to convert image: {exc}")
+        frame = self._imgmsg_to_bgr(msg)
+        if frame is None:
+            self.get_logger().error(f"Unsupported image encoding: {msg.encoding}")
             return
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        corners, ids, _ = cv2.aruco.detectMarkers(
-            gray,
-            self.aruco_dict,
-            parameters=self.detector_params,
-        )
+        corners, ids, _ = self.detector.detectMarkers(gray)
 
         debug_frame = frame.copy() if self.publish_debug_image else None
         if ids is None or len(ids) == 0:
@@ -121,21 +146,23 @@ class ArucoTrackerNode(Node):
             return
 
         ids_flat = ids.flatten().astype(int).tolist()
-        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
-            corners,
-            self.marker_size_m,
-            self.camera_matrix,
-            self.dist_coeffs,
-        )
-
         frame_id = self.camera_frame_id if self.camera_frame_id else msg.header.frame_id
+
         for i, marker_id in enumerate(ids_flat):
             if self.tracked_ids and marker_id not in self.tracked_ids:
                 continue
 
-            rvec = rvecs[i, 0, :]
-            tvec = tvecs[i, 0, :]
+            img_pts = corners[i][0].astype(np.float64)
+            ok, rvec, tvec = cv2.solvePnP(
+                self._marker_obj_pts, img_pts,
+                self.camera_matrix, self.dist_coeffs,
+                flags=cv2.SOLVEPNP_IPPE_SQUARE,
+            )
+            if not ok:
+                continue
 
+            rvec = rvec.flatten()
+            tvec = tvec.flatten()
             rot_mtx, _ = cv2.Rodrigues(rvec)
             quat = matrix_to_quaternion(rot_mtx)
 
@@ -162,8 +189,13 @@ class ArucoTrackerNode(Node):
     def _publish_debug_image(self, frame: np.ndarray, header) -> None:
         if self.debug_pub is None:
             return
-        msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+        msg = Image()
         msg.header = header
+        msg.height, msg.width = frame.shape[:2]
+        msg.encoding = "bgr8"
+        msg.is_bigendian = 0
+        msg.step = frame.strides[0]
+        msg.data = np.ascontiguousarray(frame).tobytes()
         self.debug_pub.publish(msg)
 
 

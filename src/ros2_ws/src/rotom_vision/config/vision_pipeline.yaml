@@ -6,11 +6,14 @@ stereo_splitter:
     output_camera_info_topic: "/camera/selected/camera_info"
     eye: "left"
     output_frame_id: ""
-    output_encoding: "bgr8"
+    output_encoding: "bgr8"  # matches v4l2_camera output_encoding; no conversion needed
     output_reliability: "reliable"
     publish_synthetic_camera_info_if_missing: true
     synthetic_focal_length_px: -1.0
     synthetic_distortion_model: "plumb_bob"
+    # Set to the absolute path of camera_calibration.yaml after running calibration.
+    # When set, this overrides synthetic intrinsics and upstream camera_info.
+    calibration_file: ""
 
 aruco_tracker:
   ros__parameters:
@@ -41,4 +44,19 @@ marker_follower:
     position_tolerance_m: 0.005
     angle_tolerance_rad: 0.05
     publish_zero_when_lost: true
+    # Controlled by the enable_servo launch argument; do not set true here directly.
     enable_twist_output: false
+
+visual_servo:
+  ros__parameters:
+    twist_topic: "/servo_node/delta_twist_cmds"
+    joint_state_topic: "/joint_states"
+    joint_command_topic: "/joint_command"
+    # Max speed any single joint is allowed to move (rad/s)
+    max_joint_velocity_rad_s: 0.4
+    # Damping factor for the pseudo-inverse (higher = softer near singularities)
+    damping: 0.05
+    # Twist magnitude below which no command is issued
+    twist_deadband: 1.0e-4
+    # Fallback dt used only for the very first twist message
+    default_dt_s: 0.05

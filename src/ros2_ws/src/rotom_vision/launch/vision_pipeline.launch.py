@@ -16,6 +16,7 @@ def generate_launch_description():
     start_camera = LaunchConfiguration("start_camera")
     camera_device = LaunchConfiguration("camera_device")
     camera_pixel_format = LaunchConfiguration("camera_pixel_format")
+    enable_servo = LaunchConfiguration("enable_servo")
 
     return LaunchDescription(
         [
@@ -26,6 +27,11 @@ def generate_launch_description():
                 default_value="/dev/v4l/by-id/usb-3D_USB_Camera_3D_USB_Camera_01.00.00-video-index0",
             ),
             DeclareLaunchArgument("camera_pixel_format", default_value="YUYV"),
+            DeclareLaunchArgument(
+                "enable_servo",
+                default_value="false",
+                description="Set true to enable visual_servo and marker_follower twist output.",
+            ),
             Node(
                 condition=IfCondition(start_camera),
                 package="v4l2_camera",
@@ -36,8 +42,8 @@ def generate_launch_description():
                     {
                         "video_device": camera_device,
                         "pixel_format": camera_pixel_format,
-                        "image_size": [640, 240],
-                        "output_encoding": "rgb8",
+                        "image_size": [1280, 480],
+                        "output_encoding": "bgr8",
                     }
                 ],
             ),
@@ -59,6 +65,17 @@ def generate_launch_description():
                 package="rotom_vision",
                 executable="marker_follower",
                 name="marker_follower",
+                output="screen",
+                parameters=[
+                    params_file,
+                    {"enable_twist_output": enable_servo},
+                ],
+            ),
+            Node(
+                condition=IfCondition(enable_servo),
+                package="rotom_vision",
+                executable="visual_servo",
+                name="visual_servo",
                 output="screen",
                 parameters=[params_file],
             ),

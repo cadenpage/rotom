@@ -1,13 +1,6 @@
 package.xml
 setup.cfg
 setup.py
-../../build/rotom_vision/rotom_vision.egg-info/PKG-INFO
-../../build/rotom_vision/rotom_vision.egg-info/SOURCES.txt
-../../build/rotom_vision/rotom_vision.egg-info/dependency_links.txt
-../../build/rotom_vision/rotom_vision.egg-info/entry_points.txt
-../../build/rotom_vision/rotom_vision.egg-info/requires.txt
-../../build/rotom_vision/rotom_vision.egg-info/top_level.txt
-../../build/rotom_vision/rotom_vision.egg-info/zip-safe
 config/vision_pipeline.yaml
 launch/vision_pipeline.launch.py
 resource/rotom_vision
@@ -16,3 +9,11 @@ rotom_vision/aruco_tracker_node.py
 rotom_vision/marker_follower_node.py
 rotom_vision/math_utils.py
 rotom_vision/stereo_splitter_node.py
+rotom_vision/visual_servo_node.py
+rotom_vision.egg-info/PKG-INFO
+rotom_vision.egg-info/SOURCES.txt
+rotom_vision.egg-info/dependency_links.txt
+rotom_vision.egg-info/entry_points.txt
+rotom_vision.egg-info/requires.txt
+rotom_vision.egg-info/top_level.txt
+rotom_vision.egg-info/zip-safe
