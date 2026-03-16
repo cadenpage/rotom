@@ -1,0 +1,22 @@
+# ChArUco calibration — 2026-03-07T20:59:08.420313
+# Board: 11x8 legacy, checker=20mm, marker=15mm
+image_width: 800
+image_height: 600
+camera_name: rotom_camera
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [578.925878, 0.0, 409.075444, 0.0, 575.153465, 297.594555, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.00136171, 0.10507861, 0.00646131, 0.00042504, -0.27484597]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [578.925878, 0.0, 409.075444, 0.0, 0.0, 575.153465, 297.594555, 0.0, 0.0, 0.0, 1.0, 0.0]

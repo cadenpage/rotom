@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -6,16 +7,25 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
     pkg_share = get_package_share_directory("rotom_vision")
     default_params = os.path.join(pkg_share, "config", "vision_pipeline.yaml")
+    default_calibration = os.path.join(pkg_share, "config", "camera_calibration.yaml")
+    default_calibration = default_calibration if os.path.exists(default_calibration) else ""
+    control_share = get_package_share_directory("rotom_control")
+    default_control_params = os.path.join(control_share, "config", "rotom_control.yaml")
 
     params_file = LaunchConfiguration("params_file")
     start_camera = LaunchConfiguration("start_camera")
+    start_control = LaunchConfiguration("start_control")
     camera_device = LaunchConfiguration("camera_device")
     camera_pixel_format = LaunchConfiguration("camera_pixel_format")
+    camera_image_size = LaunchConfiguration("camera_image_size")
+    calibration_file = LaunchConfiguration("calibration_file")
+    control_params_file = LaunchConfiguration("control_params_file")
     enable_servo = LaunchConfiguration("enable_servo")
 
     return LaunchDescription(
@@ -23,10 +33,34 @@ def generate_launch_description():
             DeclareLaunchArgument("params_file", default_value=default_params),
             DeclareLaunchArgument("start_camera", default_value="false"),
             DeclareLaunchArgument(
+                "start_control",
+                default_value="false",
+                description="Set true to start the rotom motor bridge alongside the vision pipeline.",
+            ),
+            DeclareLaunchArgument(
                 "camera_device",
                 default_value="/dev/v4l/by-id/usb-3D_USB_Camera_3D_USB_Camera_01.00.00-video-index0",
             ),
-            DeclareLaunchArgument("camera_pixel_format", default_value="YUYV"),
+            DeclareLaunchArgument(
+                "camera_pixel_format",
+                default_value="YUYV",
+                description="Pixel format for v4l2_camera. YUYV is the highest-resolution mode validated through the ROS driver.",
+            ),
+            DeclareLaunchArgument(
+                "camera_image_size",
+                default_value="[1600, 600]",
+                description="Total stereo frame size before left/right splitting. The default yields 800x600 per eye and matches the saved calibration.",
+            ),
+            DeclareLaunchArgument(
+                "calibration_file",
+                default_value=default_calibration,
+                description="Path to a ROS camera calibration YAML for the selected eye. Defaults to config/camera_calibration.yaml when installed.",
+            ),
+            DeclareLaunchArgument(
+                "control_params_file",
+                default_value=default_control_params,
+                description="Parameter file for rotom_control when start_control:=true.",
+            ),
             DeclareLaunchArgument(
                 "enable_servo",
                 default_value="false",
@@ -42,17 +76,28 @@ def generate_launch_description():
                     {
                         "video_device": camera_device,
                         "pixel_format": camera_pixel_format,
-                        "image_size": [1280, 480],
+                        "image_size": ParameterValue(camera_image_size, value_type=List[int]),
                         "output_encoding": "bgr8",
                     }
                 ],
+            ),
+            Node(
+                condition=IfCondition(start_control),
+                package="rotom_control",
+                executable="rotom_motor_bridge",
+                name="rotom_motor_bridge",
+                output="screen",
+                parameters=[control_params_file],
             ),
             Node(
                 package="rotom_vision",
                 executable="stereo_splitter",
                 name="stereo_splitter",
                 output="screen",
-                parameters=[params_file],
+                parameters=[
+                    params_file,
+                    {"calibration_file": ParameterValue(calibration_file, value_type=str)},
+                ],
             ),
             Node(
                 package="rotom_vision",
@@ -68,7 +113,7 @@ def generate_launch_description():
                 output="screen",
                 parameters=[
                     params_file,
-                    {"enable_twist_output": enable_servo},
+                    {"enable_twist_output": ParameterValue(enable_servo, value_type=bool)},
                 ],
             ),
             Node(

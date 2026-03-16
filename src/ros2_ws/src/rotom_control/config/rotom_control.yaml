@@ -12,8 +12,8 @@ rotom_motor_bridge:
     state_topic: "/joint_states"
     trajectory_action: "/arm_controller/follow_joint_trajectory"
     enable_trajectory_action: true
-    trajectory_goal_tolerance: 0.08
-    trajectory_goal_timeout_sec: 4.0
+    trajectory_goal_tolerance: 0.15
+    trajectory_goal_timeout_sec: 8.0
     sync_read_retries: 2
     sync_write_retries: 1
     joint_names:

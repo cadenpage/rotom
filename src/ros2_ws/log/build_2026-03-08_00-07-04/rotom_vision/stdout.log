@@ -1,0 +1,50 @@
+running develop
+Removing /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom-vision.egg-link (link to .)
+running egg_info
+writing ../../build/rotom_vision/rotom_vision.egg-info/PKG-INFO
+writing dependency_links to ../../build/rotom_vision/rotom_vision.egg-info/dependency_links.txt
+writing entry points to ../../build/rotom_vision/rotom_vision.egg-info/entry_points.txt
+writing requirements to ../../build/rotom_vision/rotom_vision.egg-info/requires.txt
+writing top-level names to ../../build/rotom_vision/rotom_vision.egg-info/top_level.txt
+reading manifest file '../../build/rotom_vision/rotom_vision.egg-info/SOURCES.txt'
+writing manifest file '../../build/rotom_vision/rotom_vision.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build
+creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib
+creating /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/marker_follower_node.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/__init__.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/stereo_splitter_node.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/aruco_tracker_node.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/math_utils.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+copying rotom_vision/visual_servo_node.py -> /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision
+running install
+running install_lib
+creating /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/marker_follower_node.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/__init__.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/stereo_splitter_node.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/aruco_tracker_node.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/math_utils.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+copying /home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/build/lib/rotom_vision/visual_servo_node.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/marker_follower_node.py to marker_follower_node.cpython-310.pyc
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/stereo_splitter_node.py to stereo_splitter_node.cpython-310.pyc
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/aruco_tracker_node.py to aruco_tracker_node.cpython-310.pyc
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/math_utils.py to math_utils.cpython-310.pyc
+byte-compiling /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision/visual_servo_node.py to visual_servo_node.cpython-310.pyc
+running install_data
+copying resource/rotom_vision -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/ament_index/resource_index/packages
+copying package.xml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision
+copying launch/vision_pipeline.launch.py -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/launch
+copying config/vision_pipeline.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/config
+copying config/camera_calibration.yaml -> /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/share/rotom_vision/config
+running install_egg_info
+Copying ../../build/rotom_vision/rotom_vision.egg-info to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/python3.10/site-packages/rotom_vision-0.0.1-py3.10.egg-info
+running install_scripts
+Installing aruco_tracker script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+Installing marker_follower script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+Installing stereo_splitter script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+Installing visual_servo script to /home/caden/Documents/rotom/src/ros2_ws/install/rotom_vision/lib/rotom_vision
+writing list of installed files to '/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/install.log'

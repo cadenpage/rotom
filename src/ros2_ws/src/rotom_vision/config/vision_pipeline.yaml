@@ -11,8 +11,9 @@ stereo_splitter:
     publish_synthetic_camera_info_if_missing: true
     synthetic_focal_length_px: -1.0
     synthetic_distortion_model: "plumb_bob"
-    # Set to the absolute path of camera_calibration.yaml after running calibration.
-    # When set, this overrides synthetic intrinsics and upstream camera_info.
+    # Leave blank to accept the launch-file default, which auto-loads
+    # config/camera_calibration.yaml when it has been installed with the package.
+    # When set explicitly, this overrides synthetic intrinsics and upstream camera_info.
     calibration_file: ""
 
 aruco_tracker:

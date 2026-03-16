@@ -1,1 +1,63 @@
-/home/caden/Documents/rotom/src/ros2_ws/build/rotom_vision/config/vision_pipeline.yaml
+stereo_splitter:
+  ros__parameters:
+    input_image_topic: "/image_raw"
+    input_camera_info_topic: "/camera_info"
+    output_image_topic: "/camera/selected/image_raw"
+    output_camera_info_topic: "/camera/selected/camera_info"
+    eye: "left"
+    output_frame_id: ""
+    output_encoding: "bgr8"  # matches v4l2_camera output_encoding; no conversion needed
+    output_reliability: "reliable"
+    publish_synthetic_camera_info_if_missing: true
+    synthetic_focal_length_px: -1.0
+    synthetic_distortion_model: "plumb_bob"
+    # Leave blank to accept the launch-file default, which auto-loads
+    # config/camera_calibration.yaml when it has been installed with the package.
+    # When set explicitly, this overrides synthetic intrinsics and upstream camera_info.
+    calibration_file: ""
+
+aruco_tracker:
+  ros__parameters:
+    image_topic: "/camera/selected/image_raw"
+    camera_info_topic: "/camera/selected/camera_info"
+    dictionary: "DICT_5X5_100"
+    marker_size_m: 0.03
+    frame_prefix: "aruco_marker_"
+    tracked_ids: [1, 2]
+    camera_frame_id: ""
+    publish_debug_image: true
+    debug_image_topic: "/aruco/debug_image"
+
+marker_follower:
+  ros__parameters:
+    robot_marker_frame: "aruco_marker_1"
+    object_marker_frame: "aruco_marker_2"
+    robot_marker_to_ee_xyzrpy: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    object_marker_to_ee_target_xyzrpy: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    ee_command_frame: "tool0"
+    twist_topic: "/servo_node/delta_twist_cmds"
+    target_pose_topic: "/rotom_vision/ee_target_pose"
+    control_rate_hz: 20.0
+    linear_gain: 1.2
+    angular_gain: 2.0
+    max_linear_speed: 0.15
+    max_angular_speed: 0.8
+    position_tolerance_m: 0.005
+    angle_tolerance_rad: 0.05
+    publish_zero_when_lost: true
+    # Controlled by the enable_servo launch argument; do not set true here directly.
+    enable_twist_output: false
+
+visual_servo:
+  ros__parameters:
+    twist_topic: "/servo_node/delta_twist_cmds"
+    joint_state_topic: "/joint_states"
+    joint_command_topic: "/joint_command"
+    # Max speed any single joint is allowed to move (rad/s)
+    max_joint_velocity_rad_s: 0.4
+    # Damping factor for the pseudo-inverse (higher = softer near singularities)
+    damping: 0.05
+    # Twist magnitude below which no command is issued
+    twist_deadband: 1.0e-4
+    # Fallback dt used only for the very first twist message
+    default_dt_s: 0.05
