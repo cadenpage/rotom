@@ -10,6 +10,9 @@ calibration-gui = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/
 homing-offset = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/homing_offset.py'"
 home = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/home.py'"
 export-joint-limits = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/export_joint_limits.py'"
+ros2-motor-bridge = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; source /opt/ros/humble/setup.bash; source /home/caden/Documents/rotom/src/ros2_ws/install/setup.bash; ros2 run rotom_control rotom_motor_bridge'"
+ros2-build = "bash -lc 'source /opt/ros/humble/setup.bash; cd /home/caden/Documents/rotom/src/ros2_ws; colcon build --symlink-install'"
+ros2-moveit-real = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; source /opt/ros/humble/setup.bash; source /home/caden/Documents/rotom/src/ros2_ws/install/setup.bash; ros2 launch rotom_moveit_config real_hw.launch.py'"
 
 
 [dependencies]
