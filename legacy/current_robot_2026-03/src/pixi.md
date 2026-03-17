@@ -1,10 +1,3 @@
-[workspace]
-authors = ["cadenpage <ckp634@my.utexas.edu>"]
-channels = ["conda-forge"]
-name = "rotom"
-platforms = ["linux-aarch64"]
-version = "0.1.0"
-
 [tasks]
 ros2-build = "bash -lc 'cd /home/caden/Documents/rotom/src/ros2_ws; rm -rf build install log; source /opt/ros/humble/setup.bash; export COLCON_PYTHON_EXECUTABLE=/usr/bin/python3; colcon build --symlink-install --cmake-args -DPython3_EXECUTABLE=/usr/bin/python3; source install/setup.bash'"
 ros2-control = "bash -lc 'export ROTOM_ROOT=/home/caden/Documents/rotom; export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; source /home/caden/Documents/rotom/src/ros2_ws/install/setup.bash; ros2 launch rotom_control rotom_control.launch.py'"
@@ -33,14 +26,3 @@ calibration-gui = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/
 homing-offset = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/homing_offset.py'"
 home = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/home.py'"
 export-joint-limits = "bash -lc 'export PYTHONPATH=/home/caden/Documents/rotom/src:/home/caden/Documents/rotom/.pixi/envs/default/lib/python3.10/site-packages:$PYTHONPATH; python /home/caden/Documents/rotom/src/examples/export_joint_limits.py'"
-
-[dependencies]
-python = "3.10.*"
-tqdm = ">=4.67.3,<5"
-pygame = ">=2.6.1,<3"
-pip = ">=26.0.1,<27"
-py-opencv = ">=4.5,<5"
-numpy = ">=1.24,<2"
-
-[pypi-dependencies]
-feetech-servo-sdk = ">=1.0.0, <2"

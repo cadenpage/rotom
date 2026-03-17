@@ -64,6 +64,7 @@ pixi run ros2-build
 pixi run ros2-marker-follow-moveit-dry
 pixi run ros2-marker-follow-moveit-live
 pixi run ros2-drag-servo-dry
+pixi run ros2-drag-servo-moveit-live
 ```
 
 ## Hardware
@@ -87,4 +88,3 @@ pixi run ros2-drag-servo-dry
 - [Remote Visualization on macOS](docs/ros2_remoteVis.md)
 - [Setting Up a ROS 2 Workspace](docs/ros2_workspace.md)
 - [Jetson Headless Screen Sharing to macOS](docs/Nano_ScreenShare.md)
-

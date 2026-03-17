@@ -1,1 +1,0 @@
-/home/caden/Documents/rotom/src/ros2_ws/src/rotom_moveit_config/launch/static_virtual_joint_tfs.launch.py
