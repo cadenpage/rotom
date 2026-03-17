@@ -18,5 +18,6 @@ rotom_description.egg-info/entry_points.txt
 rotom_description.egg-info/requires.txt
 rotom_description.egg-info/top_level.txt
 rotom_description.egg-info/zip-safe
+rviz/servo_dragger.rviz
 rviz/view_robot.rviz
 urdf/rotom.urdf.xacro

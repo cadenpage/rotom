@@ -1,3 +1,15 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# ROS 2 workspace build artifacts
+build/
+install/
+log/
+src/ros2_ws/build/
+src/ros2_ws/install/
+src/ros2_ws/log/

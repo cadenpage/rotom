@@ -25,6 +25,7 @@ setup(
             "aruco_tracker = rotom_vision.aruco_tracker_node:main",
             "marker_follower = rotom_vision.marker_follower_node:main",
             "visual_servo = rotom_vision.visual_servo_node:main",
+            "drag_target_servo = rotom_vision.drag_target_servo_node:main",
         ],
     },
 )

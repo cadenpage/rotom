@@ -6,7 +6,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image
 from tf2_ros import TransformBroadcaster
 
@@ -52,6 +52,7 @@ class ArucoTrackerNode(Node):
         self.declare_parameter("publish_debug_image", False)
         self.declare_parameter("debug_image_topic", "/aruco/debug_image")
         self.declare_parameter("queue_size", 10)
+        self.declare_parameter("tf_use_current_time", True)
 
         self.image_topic = str(self.get_parameter("image_topic").value)
         self.camera_info_topic = str(self.get_parameter("camera_info_topic").value)
@@ -64,6 +65,7 @@ class ArucoTrackerNode(Node):
         self.publish_debug_image = bool(self.get_parameter("publish_debug_image").value)
         self.debug_image_topic = str(self.get_parameter("debug_image_topic").value)
         self.queue_size = int(self.get_parameter("queue_size").value)
+        self.tf_use_current_time = bool(self.get_parameter("tf_use_current_time").value)
 
         if self.marker_size_m <= 0.0:
             raise ValueError(f"marker_size_m must be positive. Got {self.marker_size_m}")
@@ -75,7 +77,15 @@ class ArucoTrackerNode(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         self.debug_pub = None
         if self.publish_debug_image:
-            self.debug_pub = self.create_publisher(Image, self.debug_image_topic, qos_profile_sensor_data)
+            # Debug viewing tools like image_view default to reliable subscriptions.
+            # Use a reliable publisher here so local inspection works out of the box.
+            debug_qos = QoSProfile(
+                history=HistoryPolicy.KEEP_LAST,
+                depth=1,
+                reliability=ReliabilityPolicy.RELIABLE,
+                durability=DurabilityPolicy.VOLATILE,
+            )
+            self.debug_pub = self.create_publisher(Image, self.debug_image_topic, debug_qos)
 
         aruco_dict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT_BY_NAME[self.dict_name])
         detector_params = _make_detector_parameters()
@@ -103,6 +113,8 @@ class ArucoTrackerNode(Node):
         self.get_logger().info(
             f"Aruco tracker active. image={self.image_topic}, dictionary={self.dict_name}, marker_size={self.marker_size_m:.4f}m"
         )
+        if self.tf_use_current_time:
+            self.get_logger().info("Publishing marker TF with current node time to avoid stale image timestamps.")
 
     def _camera_info_cb(self, msg: CameraInfo) -> None:
         if len(msg.k) != 9:
@@ -184,7 +196,10 @@ class ArucoTrackerNode(Node):
             quat = matrix_to_quaternion(rot_mtx)
 
             tf_msg = TransformStamped()
-            tf_msg.header.stamp = msg.header.stamp
+            if self.tf_use_current_time:
+                tf_msg.header.stamp = self.get_clock().now().to_msg()
+            else:
+                tf_msg.header.stamp = msg.header.stamp
             tf_msg.header.frame_id = frame_id
             tf_msg.child_frame_id = f"{self.frame_prefix}{marker_id}"
             tf_msg.transform.translation.x = float(tvec[0])

@@ -6,7 +6,7 @@ package_name = 'rotom_description'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -23,8 +23,8 @@ setup(
     zip_safe=True,
     maintainer='caden',
     maintainer_email='ckp634@my.utexas.edu',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Robot description, launch files, and RViz configs for the current Rotom geometry.',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

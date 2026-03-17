@@ -1,3 +1,5 @@
+"""ROS 2 bridge between Rotom joint commands and the Feetech motor bus."""
+
 import math
 import os
 import sys
@@ -12,7 +14,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from trajectory_msgs.msg import JointTrajectoryPoint
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.action import FollowJointTrajectory
 
 def _maybe_add_motors_path() -> None:
@@ -77,6 +79,8 @@ class RotomMotorBridge(Node):
         self.declare_parameter("state_topic", "/joint_states")
         self.declare_parameter("trajectory_action", "/arm_controller/follow_joint_trajectory")
         self.declare_parameter("enable_trajectory_action", True)
+        self.declare_parameter("trajectory_command_topic", "/servo_node/joint_trajectory")
+        self.declare_parameter("enable_trajectory_topic", True)
         self.declare_parameter("trajectory_goal_tolerance", 0.15)
         self.declare_parameter("trajectory_goal_timeout_sec", 8.0)
         self.declare_parameter("sync_read_retries", 2)
@@ -101,6 +105,8 @@ class RotomMotorBridge(Node):
         self.state_topic = self.get_parameter("state_topic").value
         self.trajectory_action = self.get_parameter("trajectory_action").value
         self.enable_trajectory_action = bool(self.get_parameter("enable_trajectory_action").value)
+        self.trajectory_command_topic = self.get_parameter("trajectory_command_topic").value
+        self.enable_trajectory_topic = bool(self.get_parameter("enable_trajectory_topic").value)
         self.trajectory_goal_tolerance = float(self.get_parameter("trajectory_goal_tolerance").value)
         self.trajectory_goal_timeout_sec = float(self.get_parameter("trajectory_goal_timeout_sec").value)
         self.sync_read_retries = int(self.get_parameter("sync_read_retries").value)
@@ -127,12 +133,23 @@ class RotomMotorBridge(Node):
         self._read_error_log_period_ns = 500_000_000  # 0.5s
         self._last_read_diag_log_ns = 0
         self._read_diag_log_period_ns = 5_000_000_000  # 5s
+        self._last_trajectory_log_ns = 0
+        self._trajectory_log_period_ns = 2_000_000_000  # 2s
+        self._last_joint_positions: Optional[Dict[str, float]] = None
 
         self.bus = self._connect_bus()
 
         self.cmd_sub = self.create_subscription(
             JointState, self.command_topic, self._handle_command, 10
         )
+        self.trajectory_cmd_sub = None
+        if self.enable_trajectory_topic:
+            self.trajectory_cmd_sub = self.create_subscription(
+                JointTrajectory,
+                self.trajectory_command_topic,
+                self._handle_trajectory_topic,
+                10,
+            )
         self.state_pub = self.create_publisher(JointState, self.state_topic, 10)
 
         self._action_cb_group = ReentrantCallbackGroup()
@@ -191,6 +208,44 @@ class RotomMotorBridge(Node):
             return
 
         self._write_joint_positions(dict(zip(msg.name, msg.position)))
+
+    def _handle_trajectory_topic(self, msg: JointTrajectory) -> None:
+        if not msg.joint_names or not msg.points:
+            return
+
+        point = msg.points[-1]
+        if not point.positions:
+            return
+
+        if len(point.positions) != len(msg.joint_names):
+            self.get_logger().warn(
+                "Ignoring JointTrajectory topic command because joint_names and positions lengths differ."
+            )
+            return
+
+        now_ns = self.get_clock().now().nanoseconds
+        if now_ns - self._last_trajectory_log_ns >= self._trajectory_log_period_ns:
+            desired = dict(zip(msg.joint_names, point.positions))
+            max_joint_delta = None
+            if self._last_joint_positions is not None:
+                deltas = [
+                    abs(desired[joint_name] - self._last_joint_positions.get(joint_name, desired[joint_name]))
+                    for joint_name in msg.joint_names
+                ]
+                if deltas:
+                    max_joint_delta = max(deltas)
+            self.get_logger().info(
+                f"Received servo JointTrajectory on {self.trajectory_command_topic} "
+                f"with {len(msg.joint_names)} joints and {len(msg.points)} point(s)"
+                + (
+                    f"; max_delta_from_state={max_joint_delta:.5f} rad."
+                    if max_joint_delta is not None
+                    else "."
+                )
+            )
+            self._last_trajectory_log_ns = now_ns
+
+        self._write_joint_positions(dict(zip(msg.joint_names, point.positions)))
 
     def _raw_to_rad(self, joint_name: str, motor_name: str, raw_tick: int) -> float:
         model = self.bus.motors[motor_name].model
@@ -424,6 +479,7 @@ class RotomMotorBridge(Node):
         current = self._read_joint_positions()
         if current is None:
             return
+        self._last_joint_positions = current
 
         msg = JointState()
         msg.header.stamp = self.get_clock().now().to_msg()

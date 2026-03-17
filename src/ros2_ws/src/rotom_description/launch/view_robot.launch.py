@@ -21,6 +21,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration('use_rviz')
     use_jsp = LaunchConfiguration('use_jsp')
     use_jsp_gui = LaunchConfiguration('use_jsp_gui')
+    rviz_config = LaunchConfiguration('rviz_config')
 
     # --- robot_state_publisher (publishes TF from robot_description + joint_states) ---
     robot_state_publisher_node = Node(
@@ -50,7 +51,6 @@ def generate_launch_description():
     )
 
     # --- RViz ---
-    rviz_config = os.path.join(pkg_share, 'rviz', 'view_robot.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -71,6 +71,11 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_jsp_gui', default_value='false',
             description='Whether to start joint_state_publisher_gui (sliders).'
+        ),
+        DeclareLaunchArgument(
+            'rviz_config',
+            default_value=os.path.join(pkg_share, 'rviz', 'view_robot.rviz'),
+            description='RViz config file to load.'
         ),
         robot_state_publisher_node,
         joint_state_pub,

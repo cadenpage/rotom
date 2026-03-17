@@ -5,13 +5,15 @@ rotom_motor_bridge:
     handshake: false
     enable_torque: true
     configure_motors_on_start: true
-    maximum_acceleration: 35
-    acceleration: 25
-    publish_rate_hz: 15.0
+    maximum_acceleration: 60
+    acceleration: 45
+    publish_rate_hz: 30.0
     command_topic: "/joint_command"
     state_topic: "/joint_states"
     trajectory_action: "/arm_controller/follow_joint_trajectory"
     enable_trajectory_action: true
+    trajectory_command_topic: "/servo_node/joint_trajectory"
+    enable_trajectory_topic: true
     trajectory_goal_tolerance: 0.15
     trajectory_goal_timeout_sec: 8.0
     sync_read_retries: 2

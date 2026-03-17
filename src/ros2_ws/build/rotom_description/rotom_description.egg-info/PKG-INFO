@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
 Name: rotom-description
-Version: 0.0.0
-Summary: TODO: Package description
+Version: 0.1.0
+Summary: Robot description, launch files, and RViz configs for the current Rotom geometry.
 Home-page: UNKNOWN
 Maintainer: caden
 Maintainer-email: ckp634@my.utexas.edu
-License: TODO: License declaration
+License: Apache-2.0
 Platform: UNKNOWN
 Provides-Extra: test
 

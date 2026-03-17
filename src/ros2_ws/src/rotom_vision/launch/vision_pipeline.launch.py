@@ -10,13 +10,31 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
 
+def _workspace_override(relative_path: str, fallback: str) -> str:
+    workspace_root = os.environ.get("ROTOM_ROOT", "").strip()
+    if workspace_root:
+        candidate = os.path.join(workspace_root, relative_path)
+        if os.path.exists(candidate):
+            return candidate
+    return fallback
+
+
 def generate_launch_description():
     pkg_share = get_package_share_directory("rotom_vision")
-    default_params = os.path.join(pkg_share, "config", "vision_pipeline.yaml")
-    default_calibration = os.path.join(pkg_share, "config", "camera_calibration.yaml")
+    default_params = _workspace_override(
+        "src/ros2_ws/src/rotom_vision/config/vision_pipeline.yaml",
+        os.path.join(pkg_share, "config", "vision_pipeline.yaml"),
+    )
+    default_calibration = _workspace_override(
+        "src/ros2_ws/src/rotom_vision/config/camera_calibration.yaml",
+        os.path.join(pkg_share, "config", "camera_calibration.yaml"),
+    )
     default_calibration = default_calibration if os.path.exists(default_calibration) else ""
     control_share = get_package_share_directory("rotom_control")
-    default_control_params = os.path.join(control_share, "config", "rotom_control.yaml")
+    default_control_params = _workspace_override(
+        "src/ros2_ws/src/rotom_control/config/rotom_control.yaml",
+        os.path.join(control_share, "config", "rotom_control.yaml"),
+    )
 
     params_file = LaunchConfiguration("params_file")
     start_camera = LaunchConfiguration("start_camera")
