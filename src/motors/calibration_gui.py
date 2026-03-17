@@ -48,9 +48,11 @@ DEFAULT_BUS = "feetech"
 DEFAULT_PORT = "/dev/ttyACM0"
 DEFAULT_MOTORS = {
     "O": (6, "sts3215"),
+    "A": (5, "sts3215"),
+    "B": (4, "sts3215"),
 }
 DEFAULT_GROUPS = {
-    "arm": ["O"],
+    "arm": ["O", "A", "B"],
 }
 
 

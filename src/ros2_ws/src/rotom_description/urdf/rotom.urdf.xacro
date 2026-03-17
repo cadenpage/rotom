@@ -45,7 +45,6 @@
 
   <link name="link1">
     <visual>
-    <!---1.570796-->
       <origin xyz="0.05 0.012 -0.023" rpy="0 0 0"/>
       <material name="red"/>
       <geometry>
@@ -62,6 +61,41 @@
     </collision>
   </link>
 
+  <link name="link2">
+    <visual>
+      <origin xyz="0.0 0.02 -0.011" rpy="0 0 0"/>
+      <material name="green"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link2.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.02 -0.011" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link2.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="tool0">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+
 
 
 
@@ -77,8 +111,23 @@
     <child link="link1"/>
     <origin xyz="0 0.02 0.0292" rpy="0 0 1.570796"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
+    <limit lower="-1.787524" upper="1.787524" effort="5.0" velocity="3.0"/>
   </joint>
+
+  <joint name="A" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0.0344 0 0.0615" rpy="0 0 1.570796"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="-3.141593" upper="0.405070" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="B" type="fixed">
+    <parent link="link2"/>
+    <child link="tool0"/>
+    <origin xyz="0 0.0996 0.029" rpy="0 0 0"/>
+  </joint>
+
 
 
 </robot>

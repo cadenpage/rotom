@@ -12,18 +12,15 @@ except ModuleNotFoundError:
 
 
 DEFAULT_JOINT_NAMES = [
-    "base_to_shoulder",
-    "shoulder_to_elbow",
-    "elbow_to_wrist",
-    "wrist_to_flick",
-    "flick_to_claw",
-    "flick_to_ee",
+    "O",
+    "A",
+    "B",
 ]
-DEFAULT_MOTOR_NAMES = ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"]
-DEFAULT_MOTOR_IDS = [6, 5, 4, 3, 2, 1]
-DEFAULT_MOTOR_MODELS = ["sts3215"] * 6
+DEFAULT_MOTOR_NAMES = ["O", "A", "B"]
+DEFAULT_MOTOR_IDS = [6, 5, 4]
+DEFAULT_MOTOR_MODELS = ["sts3215"] * 3
 # Keep this in sync with rotom_control/config/rotom_control.yaml joint_signs.
-DEFAULT_JOINT_SIGNS = [-1, -1, -1, -1, -1, 1]
+DEFAULT_JOINT_SIGNS = [1, 1, 1]
 
 
 def ticks_to_rad(raw: int, center_tick: int, max_res: int) -> float:

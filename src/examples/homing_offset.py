@@ -26,9 +26,11 @@ PORT = "/dev/ttyACM0"
 # Arm definition: name -> (id, model)
 MOTORS = {
 	"O": (6, "sts3215"),
+	"A": (5, "sts3215"),
+	"B": (4, "sts3215"),
 }
 # Which motors to act on.
-ARM = ["O"]
+ARM = ["O", "A", "B"]
 
 
 # One of: "show" | "set_half_turn" | "set_2047"
