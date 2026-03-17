@@ -47,15 +47,10 @@ DD_COLOR, DD_COLOR_HL = (70, 70, 70), (100, 100, 100)
 DEFAULT_BUS = "feetech"
 DEFAULT_PORT = "/dev/ttyACM0"
 DEFAULT_MOTORS = {
-    "Base": (6, "sts3215"),
-    "Shoulder": (5, "sts3215"),
-    "Elbow": (4, "sts3215"),
-    "Wrist": (3, "sts3215"),
-    "Flick": (2, "sts3215"),
-    "EE": (1, "sts3215"),
+    "O": (6, "sts3215"),
 }
 DEFAULT_GROUPS = {
-    "arm": ["Base", "Shoulder", "Elbow", "Wrist", "Flick", "EE"],
+    "arm": ["O"],
 }
 
 

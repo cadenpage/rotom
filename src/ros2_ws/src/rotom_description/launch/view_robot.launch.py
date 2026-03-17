@@ -6,7 +6,6 @@ import os
 
 import xacro
 
-
 def generate_launch_description():
     pkg_share = get_package_share_directory('rotom_description')
 

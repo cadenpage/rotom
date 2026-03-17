@@ -3,8 +3,8 @@
 
   <xacro:property name="mesh_scale" value="0.001"/>
 
-    <material name="black">
-        <color rgba="0.0 0.0 0.0 1.0"/>
+    <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
     </material>
     <material name="yellow">
         <color rgba="1.0 1.0 0.0 1.0"/>
@@ -28,7 +28,7 @@
     <link name="ground">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <material name="black"/>
+      <material name="gray"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/ground.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
@@ -37,7 +37,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://rotom_description/meshes/visual/origin2base.stl"
+        <mesh filename="package://rotom_description/meshes/visual/ground.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </collision>
@@ -46,14 +46,15 @@
   <link name="link1">
     <visual>
     <!---1.570796-->
-      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <origin xyz="0.05 0.012 -0.023" rpy="0 0 0"/>
+      <material name="red"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/link1.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0.0166 0 -0.01285" rpy="0 0 0"/>
+      <origin xyz="0.05 0.012 -0.023" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/link1.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
@@ -74,8 +75,8 @@
   <joint name="O" type="revolute">
     <parent link="ground"/>
     <child link="link1"/>
-    <origin xyz="0 -0.03 0.04025" rpy="1.570796 -1.570796 0"/>
-    <axis xyz="1 0 0"/>
+    <origin xyz="0 0.02 0.0292" rpy="0 0 1.570796"/>
+    <axis xyz="0 0 1"/>
     <limit lower="-3.141593" upper="3.141593" effort="5.0" velocity="3.0"/>
   </joint>
 
