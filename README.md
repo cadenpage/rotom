@@ -216,13 +216,13 @@ The marker-following work was the prerequisite that made that next step realisti
 The most relevant commands in the repository right now are:
 
 ```bash
-pixi run ros2-build
-pixi run ros2-reset
-pixi run ros2-servo-real-headless
-pixi run ros2-twist-relay
-pixi run ros2-vision-follow
-pixi run ros2-view-camera
-pixi run ros2-view-aruco
+just ros2-build
+just ros2-reset
+just ros2-servo-real-headless
+just ros2-twist-relay
+just ros2-vision-follow
+just ros2-view-camera
+just ros2-view-aruco
 ```
 
 ## Repo Map
@@ -245,10 +245,11 @@ pixi run ros2-view-aruco
 - ROS 2 Humble
 - MoveIt 2 + MoveIt Servo
 - Python motor stack in `src/motors`
+- Repo-local `.venv` for non-ROS helper scripts, with system Python fallback
 - OpenCV ArUco / ChArUco tooling
-- Pixi for repeatable workspace tasks
+- Just for command shortcuts
 - CycloneDDS for the current stable multi-node ROS graph
-- Zenoh + Tailscale for remote ROS visualization across machines (in the past I used zenoh, but I havent used it yet. i will probably use it for mac visualization or cartesian publishing)
+- Zenoh + Tailscale for remote ROS visualization across machines
 
 ## Additional Documentation
 - [Creating a Custom ROS 2 Package](docs/ros2_createpackage.md)

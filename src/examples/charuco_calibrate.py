@@ -6,8 +6,8 @@ Board (must match your printed target):
   checker_size=20 mm, marker_size=15 mm
 
 Prerequisites:
-  Terminal 1:  pixi run ros2-vision-camera
-  Terminal 2:  pixi run calibrate-camera
+  Terminal 1:  just ros2-vision-camera
+  Terminal 2:  just charuco-calibrate
 
 Controls:
   SPACE  — capture the current frame (aim for 20+ frames)
@@ -35,7 +35,7 @@ import cv2
 import numpy as np
 
 _HERE = Path(__file__).resolve().parent
-# Make sure rclpy / cv_bridge are importable when run via pixi task
+# Make sure rclpy / cv_bridge are importable when run from the repo's ROS environment
 _INSTALL = _HERE.parent / "ros2_ws" / "install"
 
 try:
