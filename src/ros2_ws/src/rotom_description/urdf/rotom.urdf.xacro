@@ -63,7 +63,7 @@
 
   <link name="link2">
     <visual>
-      <origin xyz="0.0 0.02 -0.011" rpy="0 0 0"/>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
       <material name="green"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/link2.stl"
@@ -71,9 +71,48 @@
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0.0 0.02 -0.011" rpy="0 0 0"/>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://rotom_description/meshes/visual/link2.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+
+    <link name="link3">
+    <visual>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
+      <material name="blue"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link3.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link3.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <link name="link4">
+    <visual>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
+      <material name="yellow"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link4.stl"
+              scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.02 -0.012" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rotom_description/meshes/visual/link4.stl"
               scale="${mesh_scale} ${mesh_scale} ${mesh_scale}"/>
       </geometry>
     </collision>
@@ -122,11 +161,30 @@
     <limit lower="-3.141593" upper="0.405070" effort="5.0" velocity="3.0"/>
   </joint>
 
-  <joint name="B" type="fixed">
+  <joint name="B" type="revolute">
     <parent link="link2"/>
-    <child link="tool0"/>
-    <origin xyz="0 0.0996 0.029" rpy="0 0 0"/>
+    <child link="link3"/>
+    <origin xyz="0 0.0996 0.029" rpy="3.141593 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="-0.0421948" upper="3.141593" effort="5.0" velocity="3.0"/>
   </joint>
+
+  <joint name="C" type="revolute">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <origin xyz="0 0.1215 0.0" rpy="-1.570796 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="-3.141593" upper="0.377451" effort="5.0" velocity="3.0"/>
+  </joint>
+
+  <joint name="tool0_fixed" type="fixed">
+    <parent link="link4"/>
+    <child link="tool0"/>
+    <origin xyz="0 0.064 0.0" rpy="-1.570796 0 -1.570796"/>
+  </joint>
+
+
+
 
 
 

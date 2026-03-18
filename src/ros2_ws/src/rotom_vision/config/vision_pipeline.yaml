@@ -1,0 +1,51 @@
+stereo_splitter:
+  ros__parameters:
+    input_image_topic: "/image_raw"
+    input_camera_info_topic: "/camera_info"
+    output_image_topic: "/camera/selected/image_raw"
+    output_camera_info_topic: "/camera/selected/camera_info"
+    eye: "left"
+    output_frame_id: ""
+    output_encoding: "mono8"
+    output_reliability: "reliable"
+    publish_synthetic_camera_info_if_missing: true
+    synthetic_focal_length_px: -1.0
+    synthetic_distortion_model: "plumb_bob"
+    calibration_file: ""
+    restart_camera_on_stall: true
+    stall_restart_timeout_s: 3.0
+    stall_restart_cooldown_s: 8.0
+    camera_process_match: "v4l2_camera_node --ros-args -r __node:=v4l2_camera"
+
+aruco_tracker:
+  ros__parameters:
+    image_topic: "/camera/selected/image_raw"
+    camera_info_topic: "/camera/selected/camera_info"
+    dictionary: "DICT_5X5_100"
+    marker_size_m: 0.011
+    frame_prefix: "aruco_marker_"
+    tracked_ids: [1, 2]
+    camera_frame_id: ""
+    publish_debug_image: true
+    debug_image_topic: "/aruco/debug_image"
+    tf_use_current_time: true
+
+marker_follower:
+  ros__parameters:
+    robot_marker_frame: "aruco_marker_1"
+    object_marker_frame: "aruco_marker_2"
+    robot_marker_to_ee_xyzrpy: [-0.004, 0.0, -0.02, 0.0, 0.0, 0.0]
+    object_marker_to_ee_target_xyzrpy: [0.02, 0.0, 0.0, 0.0, 0.0, 0.0]
+    twist_topic: "/rotom_servo/cartesian_cmd"
+    target_pose_topic: "/rotom_vision/ee_target_pose"
+    control_rate_hz: 30.0
+    linear_gain: 4.5
+    angular_gain: 4.0
+    max_linear_speed: 0.22
+    max_angular_speed: 0.60
+    position_tolerance_m: 0.004
+    angle_tolerance_rad: 0.05
+    command_smoothing_alpha: 0.35
+    max_transform_age_s: 0.50
+    publish_zero_when_lost: true
+    enable_output: false

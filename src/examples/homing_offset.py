@@ -28,9 +28,10 @@ MOTORS = {
 	"O": (6, "sts3215"),
 	"A": (5, "sts3215"),
 	"B": (4, "sts3215"),
+	"C": (3, "sts3215"),
 }
 # Which motors to act on.
-ARM = ["O", "A", "B"]
+ARM = ["O", "A", "B", "C"]
 
 
 # One of: "show" | "set_half_turn" | "set_2047"

@@ -15,12 +15,13 @@ DEFAULT_JOINT_NAMES = [
     "O",
     "A",
     "B",
+    "C",
 ]
-DEFAULT_MOTOR_NAMES = ["O", "A", "B"]
-DEFAULT_MOTOR_IDS = [6, 5, 4]
-DEFAULT_MOTOR_MODELS = ["sts3215"] * 3
+DEFAULT_MOTOR_NAMES = ["O", "A", "B", "C"]
+DEFAULT_MOTOR_IDS = [6, 5, 4, 3]
+DEFAULT_MOTOR_MODELS = ["sts3215"] * 4
 # Keep this in sync with rotom_control/config/rotom_control.yaml joint_signs.
-DEFAULT_JOINT_SIGNS = [1, 1, 1]
+DEFAULT_JOINT_SIGNS = [1, 1, 1, 1]
 
 
 def ticks_to_rad(raw: int, center_tick: int, max_res: int) -> float:

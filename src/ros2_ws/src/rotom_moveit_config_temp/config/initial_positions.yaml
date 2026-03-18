@@ -1,0 +1,7 @@
+# Default initial positions for rotom's ros2_control fake system
+
+initial_positions:
+  A: 0
+  B: 0
+  C: 0
+  O: 0

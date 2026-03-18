@@ -33,11 +33,11 @@ except ModuleNotFoundError:
     _maybe_add_motors_path()
     from motors import FeetechMotorsBus, Motor, MotorNormMode
 
-DEFAULT_JOINT_NAMES = DEFAULT_MOTOR_NAMES = ["O", "A"]
-DEFAULT_MOTOR_IDS = [6, 5]
-DEFAULT_MOTOR_MODELS = ["sts3215"] * 2
-DEFAULT_LOWER_LIMITS = [-3.141593, -3.141593]
-DEFAULT_UPPER_LIMITS = [3.141593, 3.141593]
+DEFAULT_JOINT_NAMES = DEFAULT_MOTOR_NAMES = ["O", "A", "B", "C"]
+DEFAULT_MOTOR_IDS = [6, 5, 4, 3]
+DEFAULT_MOTOR_MODELS = ["sts3215"] * 4
+DEFAULT_LOWER_LIMITS = [-1.787524, -3.141593, -3.141593, -3.141593]
+DEFAULT_UPPER_LIMITS = [1.787524, 0.405070, 3.141593, 3.141593]
 
 def _wrap_to_pi(angle: float) -> float:
     return (angle + math.pi) % (2.0 * math.pi) - math.pi
@@ -59,6 +59,7 @@ class RotomMotorBridge(Node):
         self.declare_parameter("command_topic", "/joint_commands")
         self.declare_parameter("trajectory_command_topic", "/joint_trajectory")
         self.declare_parameter("trajectory_action", "/army_controller/follow_joint_trajectory")
+        self.declare_parameter("trajectory_sample_rate_hz", 30.0)
 
         
 
@@ -83,6 +84,7 @@ class RotomMotorBridge(Node):
         self.command_topic = str(self.get_parameter("command_topic").value)
         self.trajectory_command_topic = str(self.get_parameter("trajectory_command_topic").value)
         self.trajectory_action = str(self.get_parameter("trajectory_action").value)
+        self.trajectory_sample_rate_hz = float(self.get_parameter("trajectory_sample_rate_hz").value)
 
         self.joint_names = list(self.get_parameter("joint_names").value)
         self.motor_names = list(self.get_parameter("motor_names").value)
@@ -102,6 +104,8 @@ class RotomMotorBridge(Node):
             raise ValueError("All parameter lists must have the same length")
         if self.publish_rate_hz <= 0.0:
             raise ValueError("publish_rate_hz must be > 0.0")
+        if self.trajectory_sample_rate_hz <= 0.0:
+            raise ValueError("trajectory_sample_rate_hz must be > 0.0")
 
         self.joint_to_motor = dict(zip(self.joint_names, self.motor_names))
         self.joint_limits_rad = {
@@ -301,22 +305,32 @@ class RotomMotorBridge(Node):
             goal_handle.abort()
             return result
 
+        current_positions = self._last_joint_positions or self._read_joint_positions()
+        if current_positions is None:
+            result.error_code = FollowJointTrajectory.Result.PATH_TOLERANCE_VIOLATED
+            result.error_string = "Unable to read current joint positions before executing trajectory"
+            goal_handle.abort()
+            return result
+
+        prev_positions = {
+            joint_name: current_positions[joint_name]
+            for joint_name in traj.joint_names
+            if joint_name in current_positions
+        }
+        if len(prev_positions) != len(traj.joint_names):
+            result.error_code = FollowJointTrajectory.Result.INVALID_JOINTS
+            result.error_string = "Current joint state does not cover all trajectory joints"
+            goal_handle.abort()
+            return result
+
         start_ns = self.get_clock().now().nanoseconds
+        prev_time_ns = 0
+        sample_period_s = 1.0 / self.trajectory_sample_rate_hz
+
         for point in traj.points:
             if goal_handle.is_cancel_requested:
                 goal_handle.canceled()
                 return FollowJointTrajectory.Result()
-
-            target_ns = (
-                start_ns
-                + point.time_from_start.sec * 1_000_000_000
-                + point.time_from_start.nanosec
-            )
-            while self.get_clock().now().nanoseconds < target_ns:
-                if goal_handle.is_cancel_requested:
-                    goal_handle.canceled()
-                    return FollowJointTrajectory.Result()
-                time.sleep(0.005)
 
             if len(point.positions) != len(traj.joint_names):
                 result.error_code = FollowJointTrajectory.Result.INVALID_GOAL
@@ -324,11 +338,45 @@ class RotomMotorBridge(Node):
                 goal_handle.abort()
                 return result
 
-            if not self._write_joint_positions(dict(zip(traj.joint_names, point.positions))):
-                result.error_code = FollowJointTrajectory.Result.PATH_TOLERANCE_VIOLATED
-                result.error_string = "Failed to write one or more trajectory points"
-                goal_handle.abort()
-                return result
+            target_positions = dict(zip(traj.joint_names, point.positions))
+            point_time_ns = point.time_from_start.sec * 1_000_000_000 + point.time_from_start.nanosec
+            segment_duration_ns = max(point_time_ns - prev_time_ns, 0)
+            segment_duration_s = segment_duration_ns / 1_000_000_000.0
+
+            if segment_duration_s <= 0.0:
+                if not self._write_joint_positions(target_positions):
+                    result.error_code = FollowJointTrajectory.Result.PATH_TOLERANCE_VIOLATED
+                    result.error_string = "Failed to write one or more trajectory points"
+                    goal_handle.abort()
+                    return result
+            else:
+                num_samples = max(int(math.ceil(segment_duration_s / sample_period_s)), 1)
+                for sample_idx in range(1, num_samples + 1):
+                    if goal_handle.is_cancel_requested:
+                        goal_handle.canceled()
+                        return FollowJointTrajectory.Result()
+
+                    alpha = sample_idx / num_samples
+                    interpolated_positions = {
+                        joint_name: (
+                            (1.0 - alpha) * prev_positions[joint_name]
+                            + alpha * target_positions[joint_name]
+                        )
+                        for joint_name in traj.joint_names
+                    }
+                    target_ns = start_ns + prev_time_ns + int(round(alpha * segment_duration_ns))
+
+                    while self.get_clock().now().nanoseconds < target_ns:
+                        if goal_handle.is_cancel_requested:
+                            goal_handle.canceled()
+                            return FollowJointTrajectory.Result()
+                        time.sleep(min(sample_period_s / 2.0, 0.005))
+
+                    if not self._write_joint_positions(interpolated_positions):
+                        result.error_code = FollowJointTrajectory.Result.PATH_TOLERANCE_VIOLATED
+                        result.error_string = "Failed to write one or more trajectory points"
+                        goal_handle.abort()
+                        return result
 
             feedback = FollowJointTrajectory.Feedback()
             feedback.joint_names = list(traj.joint_names)
@@ -336,6 +384,8 @@ class RotomMotorBridge(Node):
             desired.positions = list(point.positions)
             feedback.desired = desired
             goal_handle.publish_feedback(feedback)
+            prev_positions = target_positions
+            prev_time_ns = point_time_ns
 
         result.error_code = FollowJointTrajectory.Result.SUCCESSFUL
         goal_handle.succeed()
