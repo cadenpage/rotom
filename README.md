@@ -1,13 +1,13 @@
 # Rotom
 Rotom is a custom robot arm project that combines mechanical design, low-level Feetech servo control, ROS 2 bringup, perception, and real-time end-effector servoing on one stack. The platform runs on a Jetson Orin Nano and is now far beyond a CAD + RViz prototype: it can detect ArUco markers, convert pose error into Cartesian twist commands, route those commands through MoveIt Servo, and drive the real arm in closed loop.
 
-<div style="display: flex; justify-content: space-between; padding: 0 40px;">
-  <img src="imgs/rotom_irl.png" alt="Rotom in real life" width="40%"/>
-  <img src="imgs/onshape.png" alt="Rotom CAD model" width="40%"/>
+<div style="display: flex; justify-content: center; gap: 20px;">
+  <img src="imgs/rotomv2.png" alt="Rotom in real life" height="400"/>
+  <img src="imgs/rotomv2_cad.png" alt="Rotom CAD model" height="400"/>
 </div>
 
 ## Flagship Milestone: Real ArUco Marker Following
-This is the most important result in the project so far. I now have reliable ArUco marker following on the real robot using a full perception-to-servo-to-hardware pipeline:
+This is the most important result in the project as of recent. I now have reliable ArUco marker following on the real robot using a full perception-to-servo-to-hardware pipeline:
 
 - stereo USB camera feed into ROS 2,
 - selected-eye image split and calibration handling,
@@ -23,11 +23,6 @@ This milestone matters because it proves three different subsystems at once:
 - and the current mechanical design is stable enough to support closed-loop servo motion.
 
 ### Demo Gallery
-
-- `imgs/aruco_oscillating.gif`
-- `imgs/aruco_retuned.gif`
-- `imgs/aruco_final.gif`
-
 <table>
   <tr>
     <td align="center" width="33%">
@@ -38,12 +33,12 @@ This milestone matters because it proves three different subsystems at once:
     <td align="center" width="33%">
       <strong>2. Retuned controller</strong><br/>
       <img src="imgs/aruco_retuned.gif" alt="Retuned ArUco following" width="100%"/><br/>
-      <sub>Lower gains, lower caps, more smoothing, and a timeout matched to a 10 fps camera stream.</sub>
+      <sub>Lower gains, lower caps and scaling</sub>
     </td>
     <td align="center" width="33%">
-      <strong>3. Successful final behavior</strong><br/>
+      <strong>3. Sufficient final behavior</strong><br/>
       <img src="imgs/aruco_final.gif" alt="Final ArUco following result" width="100%"/><br/>
-      <sub>Stable enough to count as a successful real-world marker-following subsystem.</sub>
+      <sub>More smoothing, and a timeout matched to a 10 fps camera stream. real-world marker-following subsystem.</sub>
     </td>
   </tr>
 </table>
@@ -89,7 +84,7 @@ Main nodes and topics:
 - `v4l2_camera_node`
   publishes `/image_raw` and `/camera_info`
 - `stereo_splitter`
-  subscribes to `/image_raw`, selects one eye, and republishes `/camera/selected/image_raw` and `/camera/selected/camera_info`
+  subscribes to `/image_raw`, selects one eye (I am using a usb stereo camera that I hope to get depth from later), and republishes `/camera/selected/image_raw` and `/camera/selected/camera_info`
 - `aruco_tracker`
   subscribes to `/camera/selected/image_raw` and `/camera/selected/camera_info`, estimates marker pose, and publishes TF frames such as `aruco_marker_1` and `aruco_marker_2`
 - `marker_follower`
@@ -116,7 +111,7 @@ I then define two fixed geometric offsets:
 Those offsets encode:
 
 - where the end effector is relative to the robot marker
-- where I want the end effector to be relative to the object marker
+- where I want the end effector to be relative to the object marker (I chose about 2cm along x axis of EE)
 
 The desired end-effector pose in the robot-marker frame is:
 
@@ -238,7 +233,7 @@ pixi run ros2-view-aruco
 - `src/ros2_ws/src/rotom_servo`: the twist relay interface into MoveIt Servo
 - `src/ros2_ws/src/rotom_moveit_config`: MoveIt configuration plus Servo bringup for the real robot
 - `src/ros2_ws/src/rotom_description`: the current Rotom URDF/Xacro, meshes, launch files, and RViz configs
-- `scripts`: ROS environment isolation, DDS configuration, and reset helpers used by the current bringup flow
+- `scripts`: ROS environment isolation, DDS configuration, and reset helpers used by the current bringup flow (hours of troubleshooting went into these scripts, so they are important to the current workflow)
 
 ## Hardware
 - Compute: NVIDIA Jetson Orin Nano
@@ -253,7 +248,7 @@ pixi run ros2-view-aruco
 - OpenCV ArUco / ChArUco tooling
 - Pixi for repeatable workspace tasks
 - CycloneDDS for the current stable multi-node ROS graph
-- Zenoh + Tailscale for remote ROS visualization across machines
+- Zenoh + Tailscale for remote ROS visualization across machines (in the past I used zenoh, but I havent used it yet. i will probably use it for mac visualization or cartesian publishing)
 
 ## Additional Documentation
 - [Creating a Custom ROS 2 Package](docs/ros2_createpackage.md)
