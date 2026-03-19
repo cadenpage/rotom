@@ -1,24 +1,25 @@
 set shell := ["bash", "-lc"]
+repo_root := justfile_directory()
 
 default:
   @just --list
 
 venv-create:
-  python3 -m venv /home/caden/Documents/rotom/.venv
+  python3 -m venv {{repo_root}}/.venv
 
 venv-install:
-  /home/caden/Documents/rotom/.venv/bin/pip install --upgrade pip
-  /home/caden/Documents/rotom/.venv/bin/pip install -r /home/caden/Documents/rotom/requirements.txt
+  {{repo_root}}/.venv/bin/pip install --upgrade pip
+  {{repo_root}}/.venv/bin/pip install -r {{repo_root}}/requirements.txt
 
 mac-teleop-venv:
-  python3 -m venv /home/caden/Documents/rotom/.venv
+  python3 -m venv {{repo_root}}/.venv
 
 mac-teleop-install:
-  /home/caden/Documents/rotom/.venv/bin/python -m pip install --upgrade pip
-  /home/caden/Documents/rotom/.venv/bin/python -m pip install -r /home/caden/Documents/rotom/teleop/requirements-mac.txt
+  {{repo_root}}/.venv/bin/python -m pip install --upgrade pip
+  {{repo_root}}/.venv/bin/python -m pip install -r {{repo_root}}/teleop/requirements-mac.txt
 
 mac-teleop host port="8765" camera="0":
-  /home/caden/Documents/rotom/.venv/bin/python /home/caden/Documents/rotom/teleop/mac_mediapipe_sender.py --host {{host}} --port {{port}} --camera {{camera}}
+  {{repo_root}}/.venv/bin/python {{repo_root}}/teleop/mac_mediapipe_sender.py --host {{host}} --port {{port}} --camera {{camera}}
 
 ip-local:
   python3 -c 'import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.connect(("8.8.8.8", 80)); print(s.getsockname()[0]); s.close()'
