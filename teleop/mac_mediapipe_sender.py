@@ -43,7 +43,7 @@ def parse_args():
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--send-rate", type=float, default=25.0, help="Packet send rate in Hz")
-    parser.add_argument("--pinch-threshold", type=float, default=0.045, help="Thumb-index pinch threshold")
+    parser.add_argument("--pinch-threshold", type=float, default=0.1, help="Thumb-index pinch threshold")
     parser.add_argument("--min-detection-confidence", type=float, default=0.6)
     parser.add_argument("--min-tracking-confidence", type=float, default=0.6)
     parser.add_argument("--no-display", action="store_true", help="Disable the preview window")
