@@ -53,6 +53,7 @@ class PlanarTaskControllerNode(Node):
         self.declare_parameter("ik_damping", 1e-3)
         self.declare_parameter("smoothness_weight", 5e-3)
         self.declare_parameter("joint_center_weight", 5e-4)
+        self.declare_parameter("feedback_blend_alpha", 0.20)
         self.declare_parameter("position_tolerance_m", 5e-3)
         self.declare_parameter("pitch_tolerance_rad", 0.03)
         self.declare_parameter("max_joint_step", 0.08)
@@ -94,6 +95,7 @@ class PlanarTaskControllerNode(Node):
         self.ik_damping = float(self.get_parameter("ik_damping").value)
         self.smoothness_weight = float(self.get_parameter("smoothness_weight").value)
         self.joint_center_weight = float(self.get_parameter("joint_center_weight").value)
+        self.feedback_blend_alpha = float(self.get_parameter("feedback_blend_alpha").value)
         self.position_tolerance_m = float(self.get_parameter("position_tolerance_m").value)
         self.pitch_tolerance_rad = float(self.get_parameter("pitch_tolerance_rad").value)
         self.max_joint_step = float(self.get_parameter("max_joint_step").value)
@@ -256,6 +258,10 @@ class PlanarTaskControllerNode(Node):
         reduced_smooth = (1.0 - alpha) * prev_reduced_q + alpha * reduced_next
         return self._full_q_from_reduced(reduced_smooth, q_prev[3], pitch_target_rad)
 
+    def _solver_state(self, q_current: np.ndarray, q_prev: np.ndarray) -> np.ndarray:
+        alpha = min(max(self.feedback_blend_alpha, 0.0), 1.0)
+        return self.kin.clamp((1.0 - alpha) * q_prev + alpha * q_current)
+
     def _clamp_target(self, target_xyz: np.ndarray) -> np.ndarray:
         clamped = target_xyz.copy()
         radial_vec = clamped[:2] - self.kin.base_origin[:2]
@@ -364,8 +370,8 @@ class PlanarTaskControllerNode(Node):
             self._publish_bool(False)
             return
 
-        current_pose = self._current_pose(self._current_q)
-        self._publish_point(self.current_pose_pub, current_pose)
+        measured_pose = self._current_pose(self._current_q)
+        self._publish_point(self.current_pose_pub, measured_pose)
 
         if not self._maybe_initialize_target():
             return
@@ -379,25 +385,25 @@ class PlanarTaskControllerNode(Node):
         self._command_target_xyz = self._clamp_target(self._command_target_xyz)
         self._publish_point(self.target_pose_pub, self._desired_target_xyz)
         self._publish_point(self.command_pose_pub, self._command_target_xyz)
-        current_pitch = self._pitch_measure(self._current_q)
+        q_prev = self._last_command_q.copy() if self._last_command_q is not None else self._current_q.copy()
+        q_solver = self._solver_state(self._current_q, q_prev)
+        solver_pose = self._current_pose(q_solver)
+        current_pitch = self._pitch_measure(q_solver)
         self._publish_pitch(self.current_pitch_pub, current_pitch)
         self._publish_pitch(self.target_pitch_pub, self._desired_pitch_target_rad)
         self._publish_pitch(self.command_pitch_pub, self._command_pitch_target_rad)
 
-        position_error = np.linalg.norm(self._command_target_xyz - current_pose)
+        position_error = np.linalg.norm(self._command_target_xyz - solver_pose)
         pitch_error = abs(_wrap_to_pi(current_pitch - self._command_pitch_target_rad))
         if position_error <= self.position_tolerance_m and pitch_error <= self.pitch_tolerance_rad:
             self._publish_bool(True)
-            self._last_command_q = self._full_q_from_reduced(
-                self._current_q[:3], float(self._current_q[3]), self._command_pitch_target_rad
-            )
+            self._last_command_q = self._full_q_from_reduced(q_solver[:3], float(q_solver[3]), self._command_pitch_target_rad)
             self._publish_joint_command(self._last_command_q)
             return
 
         self._publish_bool(True)
-        q_prev = self._last_command_q.copy() if self._last_command_q is not None else self._current_q.copy()
         q_cmd = self._compute_servo_command(
-            self._command_target_xyz, self._command_pitch_target_rad, self._current_q, q_prev
+            self._command_target_xyz, self._command_pitch_target_rad, q_solver, q_prev
         )
         self._last_command_q = q_cmd
         self._publish_joint_command(q_cmd)

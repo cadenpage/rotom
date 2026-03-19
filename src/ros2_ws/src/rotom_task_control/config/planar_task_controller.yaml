@@ -23,13 +23,14 @@ planar_task_controller:
     pitch_target_rad: 0.0
     tool_axis_local: [0.0, 1.0, 0.0]
     task_weights: [1.0, 1.0, 2.0]
-    task_servo_gain: 1.00
+    task_servo_gain: 0.6
     ik_damping: 0.001
     smoothness_weight: 0.005
     joint_center_weight: 0.0005
+    feedback_blend_alpha: 0.20
     position_tolerance_m: 0.005
     pitch_tolerance_rad: 0.03
-    max_joint_step: 0.08
+    max_joint_step: 0.06
     command_smoothing_alpha: 0.55
     max_target_linear_speed: 0.20
     max_target_linear_accel: 0.60

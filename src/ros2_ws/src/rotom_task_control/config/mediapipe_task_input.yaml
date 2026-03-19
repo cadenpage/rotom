@@ -14,7 +14,7 @@ mediapipe_task_input:
     deadband: 0.004
     smoothing_alpha: 0.45
     max_delta_speed: 0.20
-    axis_map: [0, 1, 2]
+    axis_map: [1, 0, 2]
     axis_signs: [-1.0, -1.0, 0.0]
     linear_scale_xyz: [0.16, 0.16, 0.0]
     publish_zero_when_stale: true
