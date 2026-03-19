@@ -1,18 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rotom_teleop</name>
+  <name>rotom_task_control</name>
   <version>0.0.0</version>
-  <description>MediaPipe teleoperation bridge for Rotom.</description>
+  <description>Low-dimensional task-space control for Rotom.</description>
   <maintainer email="ckp634@my.utexas.edu">caden</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>tf2_ros</depend>
+  <depend>python3-numpy</depend>
   <depend>launch</depend>
   <depend>launch_ros</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>rotom_control</depend>
+  <depend>rotom_moveit_config</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

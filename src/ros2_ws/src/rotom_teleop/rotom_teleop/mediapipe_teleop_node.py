@@ -6,11 +6,20 @@ from typing import Optional
 import rclpy
 from geometry_msgs.msg import PoseStamped, Twist
 from rclpy.node import Node
+from rclpy.time import Time
 from std_msgs.msg import Bool
+from tf2_ros import Buffer, TransformException, TransformListener
 
 
 def _vector_norm(vec: tuple[float, float, float]) -> float:
     return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
+
+
+def _normalize_vector(vec: tuple[float, float, float]) -> tuple[float, float, float]:
+    magnitude = _vector_norm(vec)
+    if magnitude <= 1e-12:
+        return (0.0, 0.0, 0.0)
+    return (vec[0] / magnitude, vec[1] / magnitude, vec[2] / magnitude)
 
 
 def _clamp_vector(vec: tuple[float, float, float], max_magnitude: float) -> tuple[float, float, float]:
@@ -43,6 +52,29 @@ def _smooth_vector(
     )
 
 
+def _cross(a: tuple[float, float, float], b: tuple[float, float, float]) -> tuple[float, float, float]:
+    return (
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    )
+
+
+def _quat_rotate_vector(
+    quat_xyzw: tuple[float, float, float, float], vec: tuple[float, float, float]
+) -> tuple[float, float, float]:
+    qx, qy, qz, qw = quat_xyzw
+    q_vec = (qx, qy, qz)
+    t = _cross(q_vec, vec)
+    t = (2.0 * t[0], 2.0 * t[1], 2.0 * t[2])
+    c = _cross(q_vec, t)
+    return (
+        vec[0] + qw * t[0] + c[0],
+        vec[1] + qw * t[1] + c[1],
+        vec[2] + qw * t[2] + c[2],
+    )
+
+
 class MediaPipeTeleopNode(Node):
     def __init__(self) -> None:
         super().__init__("mediapipe_teleop")
@@ -62,9 +94,20 @@ class MediaPipeTeleopNode(Node):
         self.declare_parameter("deadband", 0.015)
         self.declare_parameter("smoothing_alpha", 0.35)
         self.declare_parameter("max_linear_speed", 0.12)
+        self.declare_parameter("max_angular_speed", 0.50)
         self.declare_parameter("linear_scale_xyz", [0.50, 0.45, 0.45])
         self.declare_parameter("axis_map", [2, 0, 1])
         self.declare_parameter("axis_signs", [-1.0, -1.0, -1.0])
+        self.declare_parameter("table_slide_mode", False)
+        self.declare_parameter("table_slide_axis_map_xy", [1, 0])
+        self.declare_parameter("table_slide_axis_signs_xy", [-1.0, -1.0])
+        self.declare_parameter("table_slide_scale_xy", [0.30, 0.30])
+        self.declare_parameter("table_slide_world_frame", "ground")
+        self.declare_parameter("table_slide_frame", "tool0")
+        self.declare_parameter("table_slide_hold_orientation", True)
+        self.declare_parameter("table_slide_tool_axis_local", [0.0, 1.0, 0.0])
+        self.declare_parameter("table_slide_target_axis_world", [0.0, 0.0, -1.0])
+        self.declare_parameter("table_slide_orientation_gain", 1.5)
         self.declare_parameter("publish_zero_when_stale", True)
         self.declare_parameter("warn_period_s", 2.0)
 
@@ -83,9 +126,20 @@ class MediaPipeTeleopNode(Node):
         self.deadband = float(self.get_parameter("deadband").value)
         self.smoothing_alpha = float(self.get_parameter("smoothing_alpha").value)
         self.max_linear_speed = float(self.get_parameter("max_linear_speed").value)
+        self.max_angular_speed = float(self.get_parameter("max_angular_speed").value)
         self.linear_scale_xyz = tuple(float(x) for x in self.get_parameter("linear_scale_xyz").value)
         self.axis_map = tuple(int(x) for x in self.get_parameter("axis_map").value)
         self.axis_signs = tuple(float(x) for x in self.get_parameter("axis_signs").value)
+        self.table_slide_mode = bool(self.get_parameter("table_slide_mode").value)
+        self.table_slide_axis_map_xy = tuple(int(x) for x in self.get_parameter("table_slide_axis_map_xy").value)
+        self.table_slide_axis_signs_xy = tuple(float(x) for x in self.get_parameter("table_slide_axis_signs_xy").value)
+        self.table_slide_scale_xy = tuple(float(x) for x in self.get_parameter("table_slide_scale_xy").value)
+        self.table_slide_world_frame = str(self.get_parameter("table_slide_world_frame").value)
+        self.table_slide_frame = str(self.get_parameter("table_slide_frame").value)
+        self.table_slide_hold_orientation = bool(self.get_parameter("table_slide_hold_orientation").value)
+        self.table_slide_tool_axis_local = tuple(float(x) for x in self.get_parameter("table_slide_tool_axis_local").value)
+        self.table_slide_target_axis_world = tuple(float(x) for x in self.get_parameter("table_slide_target_axis_world").value)
+        self.table_slide_orientation_gain = float(self.get_parameter("table_slide_orientation_gain").value)
         self.publish_zero_when_stale = bool(self.get_parameter("publish_zero_when_stale").value)
         self.warn_period_ns = int(float(self.get_parameter("warn_period_s").value) * 1e9)
 
@@ -97,13 +151,21 @@ class MediaPipeTeleopNode(Node):
             raise ValueError("smoothing_alpha must be in (0.0, 1.0]")
         if len(self.linear_scale_xyz) != 3 or len(self.axis_map) != 3 or len(self.axis_signs) != 3:
             raise ValueError("linear_scale_xyz, axis_map, and axis_signs must all have length 3")
+        if len(self.table_slide_axis_map_xy) != 2 or len(self.table_slide_axis_signs_xy) != 2 or len(self.table_slide_scale_xy) != 2:
+            raise ValueError("table_slide_axis_map_xy, table_slide_axis_signs_xy, and table_slide_scale_xy must all have length 2")
+        if len(self.table_slide_tool_axis_local) != 3 or len(self.table_slide_target_axis_world) != 3:
+            raise ValueError("table_slide_tool_axis_local and table_slide_target_axis_world must both have length 3")
         if any(axis < 0 or axis > 2 for axis in self.axis_map):
             raise ValueError("axis_map values must be in [0, 2]")
+        if any(axis < 0 or axis > 2 for axis in self.table_slide_axis_map_xy):
+            raise ValueError("table_slide_axis_map_xy values must be in [0, 2]")
 
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._sock.bind((self.bind_host, self.bind_port))
         self._sock.setblocking(False)
+        self._tf_buffer = Buffer()
+        self._tf_listener = TransformListener(self._tf_buffer, self, spin_thread=False)
 
         self.twist_pub = self.create_publisher(Twist, self.twist_topic, 10)
         self.raw_cmd_pub = self.create_publisher(Twist, self.raw_cmd_topic, 10)
@@ -118,6 +180,7 @@ class MediaPipeTeleopNode(Node):
         self._latest_tracked = False
         self._origin_hand_xyz: Optional[tuple[float, float, float]] = None
         self._smoothed_linear_cmd = (0.0, 0.0, 0.0)
+        self._smoothed_angular_cmd = (0.0, 0.0, 0.0)
         self._last_warn_ns = 0
         self._last_status_log_ns = 0
 
@@ -127,6 +190,13 @@ class MediaPipeTeleopNode(Node):
             "mediapipe_teleop active. "
             f"udp={self.bind_host}:{self.bind_port}, twist_topic={self.twist_topic}, frame={self.frame_id}"
         )
+        if self.table_slide_mode:
+            self.get_logger().info(
+                "table_slide_mode enabled. "
+                f"radial<-hand[{self.table_slide_axis_map_xy[0]}], "
+                f"tangential<-hand[{self.table_slide_axis_map_xy[1]}], "
+                f"hold_axis={self.table_slide_tool_axis_local} -> {self.table_slide_target_axis_world}"
+            )
 
     def destroy_node(self) -> bool:
         self._sock.close()
@@ -184,17 +254,26 @@ class MediaPipeTeleopNode(Node):
         msg.pose.orientation.w = 1.0
         self.raw_pose_pub.publish(msg)
 
-    def _publish_twist(self, publisher, linear: tuple[float, float, float]) -> None:
+    def _publish_twist(
+        self,
+        publisher,
+        linear: tuple[float, float, float],
+        angular: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    ) -> None:
         msg = Twist()
         msg.linear.x = linear[0]
         msg.linear.y = linear[1]
         msg.linear.z = linear[2]
+        msg.angular.x = angular[0]
+        msg.angular.y = angular[1]
+        msg.angular.z = angular[2]
         publisher.publish(msg)
 
     def _publish_zero(self) -> None:
         self._smoothed_linear_cmd = (0.0, 0.0, 0.0)
-        self._publish_twist(self.raw_cmd_pub, (0.0, 0.0, 0.0))
-        self._publish_twist(self.twist_pub, (0.0, 0.0, 0.0))
+        self._smoothed_angular_cmd = (0.0, 0.0, 0.0)
+        self._publish_twist(self.raw_cmd_pub, (0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
+        self._publish_twist(self.twist_pub, (0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
 
     def _packet_is_fresh(self) -> bool:
         if self._latest_packet_time_ns is None:
@@ -216,6 +295,66 @@ class MediaPipeTeleopNode(Node):
             value = _apply_deadband(value, self.deadband)
             mapped.append(value * self.linear_scale_xyz[robot_axis])
         return tuple(mapped)
+
+    def _lookup_slide_frame_transform(
+        self,
+    ) -> Optional[tuple[tuple[float, float, float], tuple[float, float, float, float]]]:
+        try:
+            transform = self._tf_buffer.lookup_transform(
+                self.table_slide_world_frame, self.table_slide_frame, Time()
+            )
+        except TransformException as exc:
+            self._warn_stale(
+                f"waiting for transform {self.table_slide_world_frame}->{self.table_slide_frame}: {exc}"
+            )
+            return None
+
+        translation = transform.transform.translation
+        rotation = transform.transform.rotation
+        return (
+            (translation.x, translation.y, translation.z),
+            (rotation.x, rotation.y, rotation.z, rotation.w),
+        )
+
+    def _compute_table_slide_cmd(
+        self, hand_delta: tuple[float, float, float]
+    ) -> Optional[tuple[tuple[float, float, float], tuple[float, float, float]]]:
+        radial_input = self.table_slide_axis_signs_xy[0] * hand_delta[self.table_slide_axis_map_xy[0]]
+        tangential_input = self.table_slide_axis_signs_xy[1] * hand_delta[self.table_slide_axis_map_xy[1]]
+        radial_input = _apply_deadband(radial_input, self.deadband) * self.table_slide_scale_xy[0]
+        tangential_input = _apply_deadband(tangential_input, self.deadband) * self.table_slide_scale_xy[1]
+
+        transform = self._lookup_slide_frame_transform()
+        if transform is None:
+            return None
+
+        position_world, quat_world_slide = transform
+        radial_basis = _normalize_vector((position_world[0], position_world[1], 0.0))
+        if _vector_norm(radial_basis) <= 1e-9:
+            self._warn_stale("table_slide_mode: slide frame is too close to the world origin to define a radial axis")
+            return None
+
+        tangential_basis = (-radial_basis[1], radial_basis[0], 0.0)
+        linear_cmd = (
+            radial_input * radial_basis[0] + tangential_input * tangential_basis[0],
+            radial_input * radial_basis[1] + tangential_input * tangential_basis[1],
+            0.0,
+        )
+        linear_cmd = _clamp_vector(linear_cmd, self.max_linear_speed)
+
+        angular_cmd = (0.0, 0.0, 0.0)
+        if self.table_slide_hold_orientation:
+            tool_axis_world = _normalize_vector(_quat_rotate_vector(quat_world_slide, self.table_slide_tool_axis_local))
+            target_axis_world = _normalize_vector(self.table_slide_target_axis_world)
+            angular_cmd = _cross(tool_axis_world, target_axis_world)
+            angular_cmd = (
+                self.table_slide_orientation_gain * angular_cmd[0],
+                self.table_slide_orientation_gain * angular_cmd[1],
+                0.0,
+            )
+            angular_cmd = _clamp_vector(angular_cmd, self.max_angular_speed)
+
+        return linear_cmd, angular_cmd
 
     def _control_step(self) -> None:
         self._drain_socket()
@@ -263,20 +402,37 @@ class MediaPipeTeleopNode(Node):
             self._latest_hand_xyz[1] - self._origin_hand_xyz[1],
             self._latest_hand_xyz[2] - self._origin_hand_xyz[2],
         )
-        raw_linear_cmd = _clamp_vector(self._map_hand_delta_to_robot(hand_delta), self.max_linear_speed)
-        self._publish_twist(self.raw_cmd_pub, raw_linear_cmd)
+        raw_linear_cmd = (0.0, 0.0, 0.0)
+        raw_angular_cmd = (0.0, 0.0, 0.0)
+        if self.table_slide_mode:
+            table_slide_cmd = self._compute_table_slide_cmd(hand_delta)
+            if table_slide_cmd is None:
+                self._publish_enabled(False)
+                if self.publish_zero_when_stale:
+                    self._publish_zero()
+                return
+            raw_linear_cmd, raw_angular_cmd = table_slide_cmd
+        else:
+            raw_linear_cmd = _clamp_vector(self._map_hand_delta_to_robot(hand_delta), self.max_linear_speed)
+
+        self._publish_twist(self.raw_cmd_pub, raw_linear_cmd, raw_angular_cmd)
 
         self._smoothed_linear_cmd = _clamp_vector(
             _smooth_vector(self._smoothed_linear_cmd, raw_linear_cmd, self.smoothing_alpha),
             self.max_linear_speed,
         )
-        self._publish_twist(self.twist_pub, self._smoothed_linear_cmd)
+        self._smoothed_angular_cmd = _clamp_vector(
+            _smooth_vector(self._smoothed_angular_cmd, raw_angular_cmd, self.smoothing_alpha),
+            self.max_angular_speed,
+        )
+        self._publish_twist(self.twist_pub, self._smoothed_linear_cmd, self._smoothed_angular_cmd)
 
         now_ns = self.get_clock().now().nanoseconds
         if now_ns - self._last_status_log_ns > self.warn_period_ns:
             self.get_logger().info(
                 "teleop cmd active: "
                 f"lin={_vector_norm(self._smoothed_linear_cmd):.3f}, "
+                f"ang={_vector_norm(self._smoothed_angular_cmd):.3f}, "
                 f"confidence={self._latest_confidence:.2f}, clutch={self._latest_clutch}"
             )
             self._last_status_log_ns = now_ns

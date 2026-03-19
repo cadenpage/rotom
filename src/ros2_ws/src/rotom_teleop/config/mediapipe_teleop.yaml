@@ -15,8 +15,19 @@ mediapipe_teleop:
     deadband: 0.015
     smoothing_alpha: 0.35
     max_linear_speed: 0.12
-    linear_scale_xyz: [0.50, 0.45, 0.45]
+    max_angular_speed: 0.50
+    linear_scale_xyz: [1.5, 0.45, 0.45]
     axis_map: [2, 0, 1]
     axis_signs: [-1.0, -1.0, -1.0]
+    table_slide_mode: false
+    table_slide_axis_map_xy: [1, 0]
+    table_slide_axis_signs_xy: [-1.0, -1.0]
+    table_slide_scale_xy: [0.30, 0.30]
+    table_slide_world_frame: "ground"
+    table_slide_frame: "tool0"
+    table_slide_hold_orientation: false
+    table_slide_tool_axis_local: [0.0, 1.0, 0.0]
+    table_slide_target_axis_world: [0.0, 0.0, -1.0]
+    table_slide_orientation_gain: 1.5
     publish_zero_when_stale: true
     warn_period_s: 2.0

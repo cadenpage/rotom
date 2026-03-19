@@ -31,7 +31,7 @@
 
       lower_singularity_threshold: 100.0
       hard_stop_singularity_threshold: 200.0
-      joint_limit_margin: 0.0
+      joint_limit_margin: 0.05
       leaving_singularity_threshold_multiplier: 1.0
 
       cartesian_command_in_topic: ~/delta_twist_cmds

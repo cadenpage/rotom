@@ -1,0 +1,41 @@
+planar_task_controller:
+  ros__parameters:
+    joint_state_topic: "/joint_states"
+    joint_command_topic: "/joint_commands"
+    target_topic: "/rotom_task/target"
+    delta_topic: "/rotom_task/delta_cmd"
+    pitch_target_topic: "/rotom_task/pitch_target"
+    pitch_delta_topic: "/rotom_task/pitch_delta"
+    current_pose_topic: "/rotom_task/current_pose"
+    target_pose_topic: "/rotom_task/target_pose"
+    command_pose_topic: "/rotom_task/command_pose"
+    current_pitch_topic: "/rotom_task/current_pitch"
+    target_pitch_debug_topic: "/rotom_task/target_pitch"
+    command_pitch_debug_topic: "/rotom_task/command_pitch"
+    enabled_topic: "/rotom_task/controller_enabled"
+    control_rate_hz: 90.0
+    delta_timeout_s: 0.25
+    initialize_target_from_current_pose: true
+    initialize_fixed_z_from_current_pose: true
+    fixed_z_enabled: true
+    fixed_z: 0.0
+    initialize_pitch_from_current_pose: true
+    pitch_target_rad: 0.0
+    tool_axis_local: [0.0, 1.0, 0.0]
+    task_weights: [1.0, 1.0, 2.0]
+    task_servo_gain: 0.80
+    ik_damping: 0.001
+    smoothness_weight: 0.005
+    joint_center_weight: 0.0005
+    position_tolerance_m: 0.005
+    pitch_tolerance_rad: 0.03
+    max_joint_step: 0.06
+    command_smoothing_alpha: 0.55
+    max_target_linear_speed: 0.10
+    max_target_pitch_rate: 1.5
+    dependent_c_search_window_rad: 0.12
+    workspace_radius_min: 0.05
+    workspace_radius_max: 0.30
+    workspace_z_min: -0.05
+    workspace_z_max: 0.30
+    warn_period_s: 2.0

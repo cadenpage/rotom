@@ -44,8 +44,8 @@ def parse_args():
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--send-rate", type=float, default=25.0, help="Packet send rate in Hz")
     parser.add_argument("--pinch-threshold", type=float, default=0.1, help="Thumb-index pinch threshold")
-    parser.add_argument("--min-detection-confidence", type=float, default=0.6)
-    parser.add_argument("--min-tracking-confidence", type=float, default=0.6)
+    parser.add_argument("--min-detection-confidence", type=float, default=0.4)
+    parser.add_argument("--min-tracking-confidence", type=float, default=0.4)
     parser.add_argument("--no-display", action="store_true", help="Disable the preview window")
     return parser.parse_args()
 
@@ -143,6 +143,15 @@ def main():
                 last_send_time = now
 
             if not args.no_display:
+                cv2.putText(
+                    frame,
+                    f"tracked={'YES' if tracked else 'NO'} conf={confidence:.2f}",
+                    (20, 75),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7,
+                    (0, 255, 0) if tracked else (0, 0, 255),
+                    2,
+                )
                 cv2.putText(
                     frame,
                     f"UDP -> {args.host}:{args.port} seq={latest_packet['seq']}",
