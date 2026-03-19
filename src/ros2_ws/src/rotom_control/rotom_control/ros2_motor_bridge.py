@@ -254,7 +254,7 @@ class RotomMotorBridge(Node):
             return False
 
         return True
-    
+
     def _handle_command(self, msg: JointState) -> None:
         if not msg.name or not msg.position:
             return

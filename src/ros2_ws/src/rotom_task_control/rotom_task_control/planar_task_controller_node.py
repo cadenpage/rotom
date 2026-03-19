@@ -58,8 +58,9 @@ class PlanarTaskControllerNode(Node):
         self.declare_parameter("max_joint_step", 0.08)
         self.declare_parameter("command_smoothing_alpha", 0.35)
         self.declare_parameter("max_target_linear_speed", 0.08)
+        self.declare_parameter("max_target_linear_accel", 0.40)
         self.declare_parameter("max_target_pitch_rate", 1.2)
-        self.declare_parameter("dependent_c_search_window_rad", 0.35)
+        self.declare_parameter("max_target_pitch_accel", 4.0)
         self.declare_parameter("workspace_radius_min", 0.05)
         self.declare_parameter("workspace_radius_max", 0.30)
         self.declare_parameter("workspace_z_min", -0.05)
@@ -98,8 +99,9 @@ class PlanarTaskControllerNode(Node):
         self.max_joint_step = float(self.get_parameter("max_joint_step").value)
         self.command_smoothing_alpha = float(self.get_parameter("command_smoothing_alpha").value)
         self.max_target_linear_speed = float(self.get_parameter("max_target_linear_speed").value)
+        self.max_target_linear_accel = float(self.get_parameter("max_target_linear_accel").value)
         self.max_target_pitch_rate = float(self.get_parameter("max_target_pitch_rate").value)
-        self.dependent_c_search_window_rad = float(self.get_parameter("dependent_c_search_window_rad").value)
+        self.max_target_pitch_accel = float(self.get_parameter("max_target_pitch_accel").value)
         self.workspace_radius_min = float(self.get_parameter("workspace_radius_min").value)
         self.workspace_radius_max = float(self.get_parameter("workspace_radius_max").value)
         self.workspace_z_min = float(self.get_parameter("workspace_z_min").value)
@@ -111,8 +113,10 @@ class PlanarTaskControllerNode(Node):
         self._last_command_q: Optional[np.ndarray] = None
         self._desired_target_xyz: Optional[np.ndarray] = None
         self._command_target_xyz: Optional[np.ndarray] = None
+        self._command_target_vel_xyz = np.zeros(3, dtype=float)
         self._desired_pitch_target_rad = self.pitch_target_rad
         self._command_pitch_target_rad = self.pitch_target_rad
+        self._command_pitch_rate = 0.0
         self._latest_delta_cmd = np.zeros(3, dtype=float)
         self._latest_delta_time_ns: Optional[int] = None
         self._last_warn_ns = 0
@@ -201,55 +205,7 @@ class PlanarTaskControllerNode(Node):
         return self.kin.forward_kinematics(q).position
 
     def _pitch_measure(self, q: np.ndarray) -> float:
-        fk = self.kin.forward_kinematics(q)
-        axis_world = fk.rotation @ self.tool_axis_local
-        radial_vec = np.array(
-            (
-                fk.position[0] - self.kin.base_origin[0],
-                fk.position[1] - self.kin.base_origin[1],
-                0.0,
-            ),
-            dtype=float,
-        )
-        radial_norm = np.linalg.norm(radial_vec[:2])
-        if radial_norm <= 1e-9:
-            radial_hat = np.array((1.0, 0.0, 0.0), dtype=float)
-        else:
-            radial_hat = radial_vec / radial_norm
-        return math.atan2(float(np.dot(axis_world, radial_hat)), float(-axis_world[2]))
-
-    def _solve_dependent_c(self, oab: np.ndarray, seed_c: float, pitch_target_rad: float) -> float:
-        oab_np = np.asarray(oab, dtype=float)
-        c_lo = float(self.kin.JOINT_LOWER[3])
-        c_hi = float(self.kin.JOINT_UPPER[3])
-
-        def error_for(c_value: float) -> float:
-            q = np.array((oab_np[0], oab_np[1], oab_np[2], c_value), dtype=float)
-            return abs(_wrap_to_pi(self._pitch_measure(q) - pitch_target_rad))
-
-        seed_c = float(np.clip(seed_c, c_lo, c_hi))
-        window = max(self.dependent_c_search_window_rad, 0.02)
-        coarse_lo = max(c_lo, seed_c - window)
-        coarse_hi = min(c_hi, seed_c + window)
-        coarse = np.linspace(coarse_lo, coarse_hi, 81, dtype=float)
-        best_c = seed_c
-        best_err = error_for(best_c)
-        for c_value in coarse:
-            err = error_for(float(c_value))
-            if err < best_err:
-                best_err = err
-                best_c = float(c_value)
-
-        coarse_step = (c_hi - c_lo) / max(len(coarse) - 1, 1)
-        refine_lo = max(c_lo, best_c - coarse_step)
-        refine_hi = min(c_hi, best_c + coarse_step)
-        for c_value in np.linspace(refine_lo, refine_hi, 41, dtype=float):
-            err = error_for(float(c_value))
-            if err < best_err:
-                best_err = err
-                best_c = float(c_value)
-
-        return best_c
+        return self.kin.tool_pitch_from_q(q)
 
     def _full_q_from_reduced(self, reduced_q: np.ndarray, seed_c: float, pitch_target_rad: float) -> np.ndarray:
         reduced_np = np.asarray(reduced_q, dtype=float).copy()
@@ -257,7 +213,7 @@ class PlanarTaskControllerNode(Node):
         reduced_np[1] = float(np.clip(reduced_np[1], self.kin.JOINT_LOWER[1], self.kin.JOINT_UPPER[1]))
         reduced_np[2] = float(np.clip(reduced_np[2], self.kin.JOINT_LOWER[2], self.kin.JOINT_UPPER[2]))
 
-        c_value = self._solve_dependent_c(reduced_np, seed_c, pitch_target_rad)
+        c_value = self.kin.solve_dependent_c(reduced_np, pitch_target_rad, seed_c)
         return self.kin.clamp(np.array((reduced_np[0], reduced_np[1], reduced_np[2], c_value), dtype=float))
 
     def _reduced_position_jacobian(
@@ -325,9 +281,11 @@ class PlanarTaskControllerNode(Node):
             current_pose[2] = self.fixed_z
         self._desired_target_xyz = current_pose.copy()
         self._command_target_xyz = current_pose.copy()
+        self._command_target_vel_xyz = np.zeros(3, dtype=float)
         if self.initialize_pitch_from_current_pose:
             self._desired_pitch_target_rad = self._pitch_measure(self._current_q)
         self._command_pitch_target_rad = self._desired_pitch_target_rad
+        self._command_pitch_rate = 0.0
         self._last_command_q = self._full_q_from_reduced(
             self._current_q[:3], float(self._current_q[3]), self._command_pitch_target_rad
         )
@@ -352,22 +310,47 @@ class PlanarTaskControllerNode(Node):
             return
         if self._command_target_xyz is None:
             self._command_target_xyz = self._desired_target_xyz.copy()
+            self._command_target_vel_xyz = np.zeros(3, dtype=float)
 
-        max_linear_step = max(self.max_target_linear_speed, 0.0) * dt_s
         target_delta = self._desired_target_xyz - self._command_target_xyz
-        self._command_target_xyz = self._command_target_xyz + _clamp_vector_norm(target_delta, max_linear_step)
+        distance = float(np.linalg.norm(target_delta))
+        if distance <= 1e-9:
+            desired_vel = np.zeros(3, dtype=float)
+        else:
+            braking_speed = math.sqrt(max(0.0, 2.0 * self.max_target_linear_accel * distance))
+            commanded_speed = min(self.max_target_linear_speed, braking_speed)
+            desired_vel = target_delta * (commanded_speed / distance)
+
+        max_vel_step = max(self.max_target_linear_accel, 0.0) * dt_s
+        vel_delta = desired_vel - self._command_target_vel_xyz
+        self._command_target_vel_xyz = self._command_target_vel_xyz + _clamp_vector_norm(vel_delta, max_vel_step)
+        step_xyz = self._command_target_vel_xyz * dt_s
+        if distance <= np.linalg.norm(step_xyz) and distance > 1e-9:
+            step_xyz = target_delta
+            self._command_target_vel_xyz = np.zeros(3, dtype=float)
+        self._command_target_xyz = self._command_target_xyz + step_xyz
         if self.fixed_z_enabled:
             self._command_target_xyz[2] = self.fixed_z
+            self._command_target_vel_xyz[2] = 0.0
         self._command_target_xyz = self._clamp_target(self._command_target_xyz)
 
         pitch_error = _wrap_to_pi(self._desired_pitch_target_rad - self._command_pitch_target_rad)
-        max_pitch_step = max(self.max_target_pitch_rate, 0.0) * dt_s
-        if max_pitch_step <= 0.0 or abs(pitch_error) <= max_pitch_step:
-            self._command_pitch_target_rad = self._desired_pitch_target_rad
+        if abs(pitch_error) <= 1e-9:
+            desired_pitch_rate = 0.0
         else:
-            self._command_pitch_target_rad = _wrap_to_pi(
-                self._command_pitch_target_rad + math.copysign(max_pitch_step, pitch_error)
-            )
+            braking_pitch_rate = math.sqrt(max(0.0, 2.0 * self.max_target_pitch_accel * abs(pitch_error)))
+            commanded_pitch_rate = min(self.max_target_pitch_rate, braking_pitch_rate)
+            desired_pitch_rate = math.copysign(commanded_pitch_rate, pitch_error)
+
+        max_pitch_rate_step = max(self.max_target_pitch_accel, 0.0) * dt_s
+        pitch_rate_delta = desired_pitch_rate - self._command_pitch_rate
+        self._command_pitch_rate += max(-max_pitch_rate_step, min(max_pitch_rate_step, pitch_rate_delta))
+        pitch_step = self._command_pitch_rate * dt_s
+        if abs(pitch_error) <= abs(pitch_step):
+            self._command_pitch_target_rad = self._desired_pitch_target_rad
+            self._command_pitch_rate = 0.0
+        else:
+            self._command_pitch_target_rad = _wrap_to_pi(self._command_pitch_target_rad + pitch_step)
 
     def _publish_joint_command(self, q_cmd: np.ndarray) -> None:
         msg = JointState()

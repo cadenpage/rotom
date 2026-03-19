@@ -22,7 +22,7 @@ def generate_launch_description():
                 executable="rotom_motor_bridge",
                 name="rotom_motor_bridge",
                 output="screen",
-                parameters=[{"publish_rate_hz": 90.0}],
+                parameters=[{"publish_rate_hz": 120.0}],
             ),
             Node(
                 package="rotom_task_control",

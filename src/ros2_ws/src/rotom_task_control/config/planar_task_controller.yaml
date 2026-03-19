@@ -13,7 +13,7 @@ planar_task_controller:
     target_pitch_debug_topic: "/rotom_task/target_pitch"
     command_pitch_debug_topic: "/rotom_task/command_pitch"
     enabled_topic: "/rotom_task/controller_enabled"
-    control_rate_hz: 90.0
+    control_rate_hz: 120.0
     delta_timeout_s: 0.25
     initialize_target_from_current_pose: true
     initialize_fixed_z_from_current_pose: true
@@ -23,17 +23,18 @@ planar_task_controller:
     pitch_target_rad: 0.0
     tool_axis_local: [0.0, 1.0, 0.0]
     task_weights: [1.0, 1.0, 2.0]
-    task_servo_gain: 0.80
+    task_servo_gain: 1.00
     ik_damping: 0.001
     smoothness_weight: 0.005
     joint_center_weight: 0.0005
     position_tolerance_m: 0.005
     pitch_tolerance_rad: 0.03
-    max_joint_step: 0.06
+    max_joint_step: 0.08
     command_smoothing_alpha: 0.55
-    max_target_linear_speed: 0.10
-    max_target_pitch_rate: 1.5
-    dependent_c_search_window_rad: 0.12
+    max_target_linear_speed: 0.20
+    max_target_linear_accel: 0.60
+    max_target_pitch_rate: 2.0
+    max_target_pitch_accel: 6.0
     workspace_radius_min: 0.05
     workspace_radius_max: 0.30
     workspace_z_min: -0.05

@@ -4,6 +4,10 @@ from dataclasses import dataclass
 import numpy as np
 
 
+def _wrap_to_pi(angle: float) -> float:
+    return (angle + math.pi) % (2.0 * math.pi) - math.pi
+
+
 def _rotation_from_rpy(roll: float, pitch: float, yaw: float) -> np.ndarray:
     cr, sr = math.cos(roll), math.sin(roll)
     cp, sp = math.cos(pitch), math.sin(pitch)
@@ -54,6 +58,7 @@ class RotomKinematics:
     JOINT_NAMES = ("O", "A", "B", "C")
     JOINT_LOWER = np.array([-1.787524, -3.141593, -0.0421948, -3.141593], dtype=float)
     JOINT_UPPER = np.array([1.787524, 0.405070, 3.141593, 0.377451], dtype=float)
+    TOOL_PITCH_OFFSET = math.pi / 2.0
 
     _JOINT_SEGMENTS = (
         ((0.0, 0.02, 0.0292), (0.0, 0.0, 1.570796), (0.0, 0.0, 1.0)),
@@ -72,6 +77,21 @@ class RotomKinematics:
     def joint_midpoints(self) -> np.ndarray:
         return 0.5 * (self.JOINT_LOWER + self.JOINT_UPPER)
 
+    def tool_pitch_from_q(self, q: np.ndarray) -> float:
+        q_np = self.clamp(q)
+        return _wrap_to_pi(float(q_np[1] + q_np[2] + q_np[3] - self.TOOL_PITCH_OFFSET))
+
+    def solve_dependent_c(self, oab: np.ndarray, pitch_target_rad: float, seed_c: float) -> float:
+        oab_np = np.asarray(oab, dtype=float)
+        raw_c = float(pitch_target_rad - (oab_np[1] + oab_np[2] - self.TOOL_PITCH_OFFSET))
+        candidates = [raw_c + 2.0 * math.pi * k for k in range(-2, 3)]
+        lower = float(self.JOINT_LOWER[3])
+        upper = float(self.JOINT_UPPER[3])
+        valid = [candidate for candidate in candidates if lower <= candidate <= upper]
+        if valid:
+            return min(valid, key=lambda candidate: abs(candidate - seed_c))
+        return float(np.clip(raw_c, lower, upper))
+
     def forward_kinematics(self, q: np.ndarray) -> FKResult:
         q_np = self.clamp(q)
         transform = np.eye(4, dtype=float)
@@ -82,4 +102,3 @@ class RotomKinematics:
         tool_translation, tool_rpy = self._TOOL_FIXED
         transform = transform @ _make_transform(tool_translation, _rotation_from_rpy(*tool_rpy))
         return FKResult(position=transform[:3, 3].copy(), rotation=transform[:3, :3].copy())
-
