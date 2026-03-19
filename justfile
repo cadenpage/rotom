@@ -29,67 +29,74 @@ charuco-calibrate:
 calibrate-camera:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh python /home/caden/Documents/rotom/src/examples/charuco_calibrate.py
 
-ros2-motor-bridge:
+motor-bridge:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 run rotom_control rotom_motor_bridge
 
-ros2-build:
+build:
   source /opt/ros/humble/setup.bash && cd /home/caden/Documents/rotom/src/ros2_ws && colcon build --symlink-install
 
-ros2-reset:
+reset:
   /home/caden/Documents/rotom/scripts/ros2_reset.sh
 
-ros2-moveit-real:
+moveit-real:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config real_hw.launch.py
 
-ros2-servo-real:
+servo-real:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_moveit_config servo_hw.launch.py
 
-ros2-servo-real-headless:
+servo-real-headless:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config servo_hw.launch.py use_rviz:=false
 
-ros2-twist-relay:
+twist-relay:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_servo twist_relay.launch.py
 
 # Canonical vision entry points
-ros2-vision:
+vision:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
-ros2-vision-debug:
+vision-debug:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
-ros2-vision-camera:
+vision-camera:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
-ros2-vision-follow:
+vision-follow:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py enable_follower_output:=true
 
-ros2-aruco-follow:
+aruco-follow:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config aruco_follow_hw.launch.py
 
-ros2-view-camera:
+view-camera:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_camera.launch.py
+
+
 
 # Compatibility aliases
-ros2-marker-follow:
+marker-follow:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision marker_follow.launch.py
 
-ros2-aruco-tracker:
+aruco-tracker:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision aruco_tracker.launch.py
 
-ros2-vision-pipeline:
+vision-pipeline:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
-ros2-view-selected:
+view-selected:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_camera.launch.py
 
-ros2-view-aruco:
+view-aruco:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_aruco.launch.py
 
-ros2-rqt-images:
+rqt-images:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh rqt_image_view
 
-ros2-moveit-rviz:
+moveit-rviz:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_moveit_config moveit_rviz.launch.py
 
-ros2-view-robot:
+view-robot:
   /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_description view_robot.launch.py
+
+# For Aruco Marker Following
+# just servo-real-headless
+# just twist-relay
+# just vision-follow

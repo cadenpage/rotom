@@ -216,13 +216,13 @@ The marker-following work was the prerequisite that made that next step realisti
 The most relevant commands in the repository right now are:
 
 ```bash
-just ros2-build
-just ros2-reset
-just ros2-servo-real-headless
-just ros2-twist-relay
-just ros2-vision-follow
-just ros2-view-camera
-just ros2-view-aruco
+just build
+just reset
+just servo-real-headless
+just twist-relay
+just vision-follow
+just view-camera
+just view-aruco
 ```
 
 ## Repo Map
