@@ -186,7 +186,7 @@ That makes this redesign a successful one.
 - Embedded robot bringup on Jetson Linux
 - Low-level smart-servo bus integration
 - ROS 2 node/package design
-- ROS 2 launch design and task automation with Pixi
+- ROS 2 launch design, shell-level environment control, and task automation
 - TF-based perception and frame-graph reasoning
 - Camera calibration, ArUco tracking, and debug visualization
 - Real-time Cartesian servo control
@@ -233,7 +233,7 @@ just view-aruco
 - `src/ros2_ws/src/rotom_servo`: the twist relay interface into MoveIt Servo
 - `src/ros2_ws/src/rotom_moveit_config`: MoveIt configuration plus Servo bringup for the real robot
 - `src/ros2_ws/src/rotom_description`: the current Rotom URDF/Xacro, meshes, launch files, and RViz configs
-- `scripts`: ROS environment isolation, DDS configuration, and reset helpers used by the current bringup flow (hours of troubleshooting went into these scripts, so they are important to the current workflow)
+- `scripts`: ROS environment isolation, DDS configuration, and small Python wrappers used by the current bringup flow
 
 ## Hardware
 - Compute: NVIDIA Jetson Orin Nano

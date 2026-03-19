@@ -4,11 +4,24 @@ default:
   @just --list
 
 venv-create:
-  /usr/bin/python3 -m venv /home/caden/Documents/rotom/.venv
+  python3 -m venv /home/caden/Documents/rotom/.venv
 
 venv-install:
   /home/caden/Documents/rotom/.venv/bin/pip install --upgrade pip
   /home/caden/Documents/rotom/.venv/bin/pip install -r /home/caden/Documents/rotom/requirements.txt
+
+mac-teleop-venv:
+  python3 -m venv /home/caden/Documents/rotom/.venv
+
+mac-teleop-install:
+  /home/caden/Documents/rotom/.venv/bin/python -m pip install --upgrade pip
+  /home/caden/Documents/rotom/.venv/bin/python -m pip install -r /home/caden/Documents/rotom/teleop/requirements-mac.txt
+
+mac-teleop host port="8765" camera="0":
+  /home/caden/Documents/rotom/.venv/bin/python /home/caden/Documents/rotom/teleop/mac_mediapipe_sender.py --host {{host}} --port {{port}} --camera {{camera}}
+
+ip-local:
+  python3 -c 'import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.connect(("8.8.8.8", 80)); print(s.getsockname()[0]); s.close()'
 
 # Core robot utilities (system Python + local source tree)
 calibration-gui:
@@ -24,10 +37,9 @@ export-joint-limits:
   /home/caden/Documents/rotom/scripts/repo_python_env.sh /home/caden/Documents/rotom/src/examples/export_joint_limits.py
 
 charuco-calibrate:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh python /home/caden/Documents/rotom/src/examples/charuco_calibrate.py
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh python /home/caden/Documents/rotom/src/examples/charuco_calibrate.py
 
-calibrate-camera:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh python /home/caden/Documents/rotom/src/examples/charuco_calibrate.py
+calibrate-camera: charuco-calibrate
 
 motor-bridge:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 run rotom_control rotom_motor_bridge
@@ -36,13 +48,16 @@ build:
   source /opt/ros/humble/setup.bash && cd /home/caden/Documents/rotom/src/ros2_ws && colcon build --symlink-install
 
 reset:
-  /home/caden/Documents/rotom/scripts/ros2_reset.sh
+  pkill -f 'ros2 launch rotom_' 2>/dev/null || true
+  pkill -f 'rotom_motor_bridge|twist_relay|stereo_splitter|aruco_tracker|marker_follower|servo_node_main|v4l2_camera_node|move_group|robot_state_publisher' 2>/dev/null || true
+  sleep 1
+  echo "ROS graph reset complete."
 
 moveit-real:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config real_hw.launch.py
 
 servo-real:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_moveit_config servo_hw.launch.py
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config servo_hw.launch.py
 
 servo-real-headless:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config servo_hw.launch.py use_rviz:=false
@@ -54,11 +69,9 @@ twist-relay:
 vision:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
-vision-debug:
-  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
+vision-debug: vision
 
-vision-camera:
-  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
+vision-camera: vision
 
 vision-follow:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py enable_follower_output:=true
@@ -66,10 +79,14 @@ vision-follow:
 aruco-follow:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config aruco_follow_hw.launch.py
 
+teleop-node:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_teleop mediapipe_teleop.launch.py
+
+teleop-hw:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config teleop_hw.launch.py use_rviz:=false
+
 view-camera:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_camera.launch.py
-
-
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision view_camera.launch.py
 
 # Compatibility aliases
 marker-follow:
@@ -78,25 +95,18 @@ marker-follow:
 aruco-tracker:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision aruco_tracker.launch.py
 
-vision-pipeline:
-  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
+vision-pipeline: vision
 
-view-selected:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_camera.launch.py
+view-selected: view-camera
 
 view-aruco:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_vision view_aruco.launch.py
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision view_aruco.launch.py
 
 rqt-images:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh rqt_image_view
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh rqt_image_view
 
 moveit-rviz:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_moveit_config moveit_rviz.launch.py
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_moveit_config moveit_rviz.launch.py
 
 view-robot:
-  /home/caden/Documents/rotom/scripts/ros2_gui_env.sh ros2 launch rotom_description view_robot.launch.py
-
-# For Aruco Marker Following
-# just servo-real-headless
-# just twist-relay
-# just vision-follow
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_description view_robot.launch.py

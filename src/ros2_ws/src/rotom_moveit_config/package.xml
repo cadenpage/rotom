@@ -40,6 +40,8 @@
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rotom_control</exec_depend>
   <exec_depend>rotom_description</exec_depend>
+  <exec_depend>rotom_servo</exec_depend>
+  <exec_depend>rotom_teleop</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>rviz_common</exec_depend>
   <exec_depend>rviz_default_plugins</exec_depend>

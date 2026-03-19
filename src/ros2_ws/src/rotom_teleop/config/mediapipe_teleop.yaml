@@ -1,0 +1,22 @@
+mediapipe_teleop:
+  ros__parameters:
+    bind_host: "0.0.0.0"
+    bind_port: 8765
+    twist_topic: "/rotom_servo/cartesian_cmd"
+    raw_pose_topic: "/rotom_teleop/raw_hand_pose"
+    enabled_topic: "/rotom_teleop/enabled"
+    raw_cmd_topic: "/rotom_teleop/cmd_raw"
+    frame_id: "teleop_hand"
+    control_rate_hz: 30.0
+    packet_timeout_s: 0.25
+    min_confidence: 0.5
+    require_clutch: true
+    reset_origin_on_clutch_release: true
+    deadband: 0.015
+    smoothing_alpha: 0.35
+    max_linear_speed: 0.12
+    linear_scale_xyz: [0.50, 0.45, 0.45]
+    axis_map: [2, 0, 1]
+    axis_signs: [-1.0, -1.0, -1.0]
+    publish_zero_when_stale: true
+    warn_period_s: 2.0
