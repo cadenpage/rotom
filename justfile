@@ -12,13 +12,13 @@ venv-install:
   {{repo_root}}/.venv/bin/pip install -r {{repo_root}}/requirements.txt
 
 mac-teleop-venv:
-  python3 -m venv {{repo_root}}/.venv
+  $(brew --prefix python@3.10)/bin/python3.10 -m venv {{repo_root}}/.venv
 
 mac-teleop-install:
   {{repo_root}}/.venv/bin/python -m pip install --upgrade pip
-  {{repo_root}}/.venv/bin/python -m pip install -r {{repo_root}}/teleop/requirements-mac.txt
+  {{repo_root}}/.venv/bin/python -m pip install --no-compile -r {{repo_root}}/teleop/requirements-mac.txt
 
-mac-teleop host port="8765" camera="0":
+mac-teleop host="10.33.5.48" port="8765" camera="0":
   {{repo_root}}/.venv/bin/python {{repo_root}}/teleop/mac_mediapipe_sender.py --host {{host}} --port {{port}} --camera {{camera}}
 
 ip-local:
