@@ -36,7 +36,7 @@ Run `just ip-local` on the Mac if you want to confirm which interface it is usin
 Run the sender from the Mac clone of the repo:
 
 ```bash
-just mac-teleop <jetson-ip>
+just mac-teleop Berra
 ```
 
 - Press `q` to quit.

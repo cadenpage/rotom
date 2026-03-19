@@ -23,6 +23,7 @@ def generate_launch_description():
             ),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(os.path.join(servo_share, "launch", "twist_relay.launch.py")),
+                launch_arguments={"command_frame": "ground"}.items(),
             ),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(os.path.join(teleop_share, "launch", "mediapipe_teleop.launch.py")),
