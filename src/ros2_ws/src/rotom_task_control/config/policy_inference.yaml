@@ -1,0 +1,26 @@
+policy_inference:
+  ros__parameters:
+    policy_repo_id: "caden-ut/rotom_task_teleop_diffusion"
+    local_policy_path: "/home/caden/Documents/rotom/policies/rotom_task_teleop_diffusion/pretrained_model"
+    image_topic: "/camera/selected/image_raw"
+    joint_state_topic: "/joint_states"
+    action_topic: "/rotom_task/delta_cmd"
+    processed_image_topic: "/rotom_policy/image_input"
+    enabled_topic: "/rotom_policy/enabled"
+    start_service: "/rotom_policy/start"
+    stop_service: "/rotom_policy/stop"
+    task_name: "table_teleop"
+    robot_type: "rotom"
+    joint_names: ["O", "A", "B", "C"]
+    inference_rate_hz: 20.0
+    observation_timeout_s: 0.5
+    resize_width: 112
+    resize_height: 112
+    action_scale_xy: [1.0, 1.0]
+    action_signs_xy: [1.0, 1.0]
+    smoothing_alpha: 0.35
+    max_delta_speed: 0.20
+    device: "auto"
+    start_enabled: false
+    publish_zero_when_disabled: true
+    warn_period_s: 2.0

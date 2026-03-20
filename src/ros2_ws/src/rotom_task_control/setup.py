@@ -24,6 +24,7 @@ setup(
         "console_scripts": [
             "planar_task_controller = rotom_task_control.planar_task_controller_node:main",
             "mediapipe_task_input = rotom_task_control.mediapipe_task_input_node:main",
+            "policy_inference = rotom_task_control.policy_inference_node:main",
         ],
     },
 )

@@ -48,7 +48,7 @@ def generate_launch_description():
                 default_value="/dev/v4l/by-id/usb-3D_USB_Camera_3D_USB_Camera_01.00.00-video-index0",
             ),
             DeclareLaunchArgument("camera_pixel_format", default_value="YUYV"),
-            DeclareLaunchArgument("camera_image_size", default_value="[1600, 600]"),
+            DeclareLaunchArgument("camera_image_size", default_value="[1280,480]"),
             DeclareLaunchArgument("camera_output_encoding", default_value="mono8"),
             DeclareLaunchArgument("calibration_file", default_value=default_calibration),
             Node(

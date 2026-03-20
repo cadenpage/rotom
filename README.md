@@ -1,13 +1,44 @@
 # Rotom
-Rotom is a custom 4-DoF robot arm project that combines mechanical design, low-level Feetech servo control, ROS 2 bringup, perception, custom kinematics, and real-time control on one stack. The platform runs on a Jetson Orin Nano and has now progressed well beyond a CAD + RViz prototype: it can both follow ArUco markers on the real robot and perform smooth MediaPipe teleoperation through a reduced task-space controller that I wrote for this mechanism.
+Rotom is a custom 4-DoF robot arm project that combines mechanical design, low-level Feetech servo control, ROS 2 bringup, perception, custom kinematics, real-time control, demonstration tooling, and policy deployment on one stack. The platform runs on a Jetson Orin Nano and has now progressed well beyond a CAD + RViz prototype: it can now follow ArUco markers on the real robot, perform smooth MediaPipe teleoperation through a reduced task-space controller that I wrote for this mechanism, and run an end-to-end teleoperation-to-imitation-learning pipeline built around diffusion policies (for now).
 
 <div style="display: flex; justify-content: center; gap: 20px;">
   <img src="imgs/rotomv2.png" alt="Rotom in real life" height="400"/>
   <img src="imgs/rotomv2_cad.png" alt="Rotom CAD model" height="400"/>
 </div>
 
-## Flagship Milestone: Smooth MediaPipe Task-Space Teleoperation
-This is the most important result in the project right now. I can teleoperate the real robot from my Mac webcam using MediaPipe hand tracking, but instead of sending generic 3D or 6D twists through MoveIt Servo, I now command a reduced action space that matches the actual robot and the tabletop tasks I care about.
+## End-To-End Imitation Learning On A Real Robot
+This is the most significant thing I have done in the project so far. I now have an end-to-end robotics learning pipeline that starts with human teleoperation on the real robot, records a clean ROS-native dataset, converts it into a LeRobot-compatible training set, trains a diffusion policy in a separate ML repo, and feeds the learned action output back into the same reduced task-space control interface that I use for teleoperation.
+
+The full pipeline is:
+
+`Mac webcam -> MediaPipe teleop -> reduced task-space controller -> real robot demonstrations -> ROS episode recorder -> LeRobot dataset -> Hugging Face Hub -> diffusion-policy training repo -> learned policy -> ROS policy runner -> /rotom_task/delta_cmd -> planar_task_controller -> /joint_commands -> motors`
+
+What this proves:
+
+- I am not just doing perception demos or canned motion playback. This is a full robot learning pipeline.
+- The project now spans the whole loop from teleoperation and dataset design to policy deployment on physical hardware.
+- I am using ROS not only for bringup and visualization, but as the interface layer for a learned policy.
+- The reduced action space and custom controller are now useful both for humans and for learned policies.
+
+### Diffusion Policy Repo
+I am keeping the dedicated training and notebook work and research in a separate repo.
+
+- [diffusion-policy repo](https://github.com/cadenpage/diffusion-policy)
+
+### Imitation Learning Setup
+This is the physical setup I used for data collection and policy inference:
+
+- fixed camera orientation for both training and deployment
+- A clipboard with paper as the back wall
+- paper taped to the table surface
+- amd a marked goal position on the table so the visual target is consistent across demonstrations
+
+<div align="center">
+  <img src="imgs/IL_layout.png" alt="Imitation learning setup" height="700"/>
+</div>
+
+## Supporting Milestone: Smooth MediaPipe Task-Space Teleoperation
+This is the human side of the learning pipeline. I can teleoperate the real robot from my Mac webcam using MediaPipe hand tracking, but instead of sending generic 3D or 6D twists through MoveIt Servo, I now command a reduced action space that matches the actual robot and the tabletop tasks I care about.
 
 The live teleoperation stack is:
 
@@ -28,7 +59,7 @@ What this proves:
 ## Why MoveIt Servo Was Not The Right Teleop Interface For This Arm
 MoveIt Servo was very useful earlier in the project. It helped me validate the URDF, joint state bridge, motion execution, and a full ArUco-following perception-to-servo pipeline on real hardware. That work was important and still matters.
 
-But for teleoperation and later learning, generic Cartesian twist control was the wrong abstraction for this specific robot:
+But for teleoperation and later learning, generic Cartesian twist control was the wrong abstraction for this specific robot (until I make custom jacobian servo controller):
 
 - the arm only has 4 DoF, so full Cartesian twist behavior is overconstrained,
 - world-frame and tool-frame twists were often unintuitive for tabletop manipulation,
@@ -177,6 +208,88 @@ The near-term direction is:
 - possibly later reinforcement learning on top of the same reduced controller interface
 - and eventually a more custom resolved-rate or optimization-based servo controller built around this same task-space formulation
 
+## How I Implemented The Diffusion Policy Pipeline In ROS
+The learning pipeline is intentionally built around the same ROS interfaces that made teleoperation work well.
+
+The main pieces are:
+
+- `episode_recorder_node.py`
+  records synchronized robot demonstrations from camera, joints, and task-space actions
+- `convert_to_lerobot_dataset.py`
+  converts raw ROS episodes into a LeRobot-compatible dataset
+- Hugging Face Hub workflow in this repo
+  stages and publishes the dataset so the training repo can consume a stable dataset id
+- separate diffusion-policy repo
+  handles notebook work, training runs, checkpoints, and more detailed ML experiments
+- `policy_inference_node.py`
+  loads a trained policy and publishes learned actions back into `/rotom_task/delta_cmd`
+
+The important design choice is that the policy does **not** bypass the robot controller. The learned model plugs into the same reduced action interface as the teleoperator:
+
+`policy -> /rotom_task/delta_cmd -> planar_task_controller -> /joint_commands -> rotom_motor_bridge -> motors`
+
+That gives me a clean separation of responsibilities:
+
+- the policy decides the next reduced task-space action
+- ROS handles observation transport, execution, and system integration
+- the controller still enforces the kinematic and task-space behavior of the arm
+
+### Policy Observation And Action Contract
+For the first imitation-learning runs, I intentionally kept the policy interface small and task-aligned:
+
+- `observation.images.front`
+- `observation.state = [O, A, B, C]`
+- `action = [dx, dy]`
+
+This keeps the policy focused on the real deployment interface instead of learning a bloated internal representation of every debug topic in the stack.
+
+## Why This Learning Pipeline Is A Real Robotics Systems Result
+What I am most proud of here is not just that I trained a model. It is that the learning pipeline is grounded in a real robot system that I had to make stable first.
+
+The interesting engineering work was:
+
+- designing an action space simple enough for both human teleoperation and policy learning
+- building a recorder that samples a live ROS robot stack into a training-ready dataset
+- matching the training-time and deployment-time camera preprocessing so the policy sees the same image contract
+- integrating LeRobot and Hugging Face dataset workflows into the robot repo without turning it into a notebook-only project
+- wiring policy inference back into ROS as another control client instead of a separate disconnected demo
+- making the Jetson GPU, ROS stack, camera pipeline, and policy runtime coexist on one embedded machine
+
+## Learning-Pipeline Challenges I Had To Solve
+This part of the project was not just "train a model and run it." A lot of robotics work had to happen around the model for the pipeline to make sense on a real arm.
+
+### 1. The demonstration interface had to be redesigned first
+Before I could even think seriously about imitation learning, I had to get away from generic twist teleop and move to a lower-dimensional action interface that a human could drive consistently and a policy could realistically predict.
+
+### 2. The recorded data had to match deployment, not just look convenient in ROS
+I had to decide what the policy should actually see and output, then keep that contract consistent:
+
+- center-cropped square images
+- small training images
+- low-dimensional proprioception
+- reduced task-space actions instead of raw joint goals
+
+### 3. The training stack and the robot stack needed a clean handoff
+I split the work between:
+
+- this repo for robot bringup, data collection, dataset conversion, and policy deployment
+- the separate diffusion-policy repo for notebooks, training runs, and experiment tracking
+
+That separation made the pipeline easier to reason about and easier to present.
+
+### 4. Jetson deployment became part of the ML problem
+Once I started running a diffusion policy on the Jetson Orin Nano, model size and inference structure became part of the robotics engineering. The default diffusion configuration is powerful, but it is also heavy enough that deployment details like CUDA support, warmup, and runtime budgeting matter on an embedded GPU.
+
+I do not want to overdo that discussion here because I will cover it more in the training repo, but it was a real part of making the pipeline believable on hardware.
+
+### 5. Camera stability mattered for learning too, not just perception demos
+The fixed camera setup is a strength for early imitation learning, but it also meant the live camera path had to stay stable and predictable under the full ROS stack. I had to think about:
+
+- camera mode and bandwidth
+- preprocessing consistency
+- topic freshness for inference
+- and keeping the visual setup intentionally controlled for small-data training
+
 ## Major Prior Milestone: Real ArUco Marker Following
 Before the new task-space teleoperation controller, the project's biggest result was real ArUco marker following on the physical robot using a full perception-to-servo-to-hardware pipeline:
 
@@ -301,6 +414,7 @@ These milestones are still important because they were the path from "robot mode
 - DDS and middleware debugging
 - End-to-end systems debugging across hardware, drivers, ROS, and control software
 - Demonstration-data tooling and dataset conversion for imitation learning
+- ROS-native policy deployment and embedded GPU inference integration
 
 ## Current Bringup Paths
 The most relevant commands in the repository right now are:
@@ -311,8 +425,13 @@ just reset
 just task-home
 just task-core
 just task-teleop-hw
+just policy-hw
+just policy-start
+just policy-stop
 just vision-follow
 just view-camera
+just view-dataset-camera
+just view-policy-camera
 just view-aruco
 ```
 
@@ -323,7 +442,7 @@ just mac-teleop Berra
 ```
 
 ## Demonstration Collection
-I now have a dedicated demonstration recorder path for collecting LeRobot-ready real-robot episodes. The important design choice is that I do **not** slow the controller itself down to 20 Hz. The task controller and teleop path can stay faster for smoother robot behavior, while the recorder samples the latest camera, action, and robot state at **20 Hz** for the dataset.
+I now have a dedicated demonstration recorder path for collecting LeRobot-ready real-robot episodes. This is the bridge between teleoperation and training. The important design choice is that I do **not** slow the controller itself down to 20 Hz. The task controller and teleop path can stay faster for smoother robot behavior, while the recorder samples the latest camera, action, and robot state at **20 Hz** for the dataset.
 
 That gives me:
 - a training-friendly fixed-rate dataset,
@@ -380,10 +499,11 @@ just mac-teleop Berra
 Recommended first test:
 1. Start `record-demo-hw` on the Jetson.
 2. If you want to see the live camera stream, open another Jetson terminal and run `just view-camera`.
-3. Start `mac-teleop Berra` on the Mac.
-4. Call `just record-start` on the Jetson.
-5. Teleoperate one short block-slide or reach demo.
-6. End with `just record-stop-success` or `just record-stop-failure`.
+3. If you want to see the exact model-facing image, run `just view-dataset-camera`.
+4. Start `mac-teleop Berra` on the Mac.
+5. Call `just record-start` on the Jetson.
+6. Teleoperate one short block-slide or reach demo from the fixed training setup.
+7. End with `just record-stop-success` or `just record-stop-failure`.
 
 ### Seeing What The Camera Sees
 While the camera is running, the quickest full-resolution live viewer is:
@@ -413,13 +533,20 @@ just view-camera
 If you want to inspect the exact saved dataset frames, open the latest episode folder under `data/demos/<episode_id>/images/`. Those are the center-cropped 112x112 frames that will be converted into the LeRobot dataset.
 
 ### Convert To LeRobot Dataset
-On the machine you want to train on, install the extra ML dependency layer:
+First install the ML / Hub dependency layer in this repo:
 
 ```bash
 just lerobot-install
 ```
 
-Then convert the raw demos:
+If you want to use the Hugging Face Hub workflow, authenticate once:
+
+```bash
+just hf-login
+just hf-whoami
+```
+
+You can still stage a local LeRobot dataset if you want a quick local check:
 
 ```bash
 just convert-lerobot-dataset
@@ -433,43 +560,60 @@ data/lerobot/local/rotom_task_teleop
 
 with a deliberately minimal policy-facing interface:
 - `observation.images.front`
-- `observation.state`
-- `action`
-
-The default action exported for learning is the same reduced control space I am teleoperating with now:
+- `observation.state = [O, A, B, C]`
 - `action = [dx, dy]`
 
-The default state exported is intentionally just the 4 measured arm joints:
-- `state = [O, A, B, C]`
+### Preferred Hugging Face Hub Workflow
+The recommended workflow now is:
+1. record raw demos on the Jetson,
+2. convert them into a staged LeRobot dataset in this repo,
+3. push that dataset to a Hugging Face dataset repo,
+4. train from the Hub repo id in the separate `[diffusion-policy repo](ADD_LINK_HERE)`.
 
-That keeps the policy aligned with the real controller interface while avoiding redundant state channels when I only have a small number of demos.
-
-### Mac Training Workflow
-I do **not** want large datasets in git. The clean workflow is:
-- keep code in git,
-- keep raw demos and LeRobot datasets out of git,
-- sync `data/demos/` from the Jetson to the Mac,
-- convert locally on the Mac,
-- and train / infer there.
-
-Example sync from the Mac:
+Example push from this repo:
 
 ```bash
-rsync -av --progress Berra:~/Documents/rotom/data/demos/ ~/Documents/rotom/data/demos/
+just convert-lerobot-hub-force caden-ut/rotom_task_teleop
 ```
 
-Then on the Mac:
+That will:
+- build the staged dataset locally under `data/lerobot/caden-ut/rotom_task_teleop/`
+- then push it to:
+- `https://huggingface.co/datasets/caden-ut/rotom_task_teleop`
+
+If you want the Hub dataset private while you iterate:
 
 ```bash
-just lerobot-install
-just convert-lerobot-dataset
+just convert-lerobot-hub-private caden-ut/rotom_task_teleop
 ```
 
-If the camera is still only producing about 10 fps in the stable mode, the recorder will still sample at 20 Hz, but some consecutive dataset frames will reuse the latest camera image while the robot/action state continues updating. That is acceptable for getting started today, and the raw episode metadata preserves the original image timestamps.
+If you want to pull a Hub dataset back down locally later:
+
+```bash
+just pull-lerobot-dataset-force caden-ut/rotom_task_teleop
+```
+
+That downloads to:
+
+```text
+data/lerobot_hub/caden-ut/rotom_task_teleop
+```
+
+### Why This Is Better Than Rsync For Training
+The Hub workflow is cleaner for my current setup because:
+- the Jetson stays the source of truth for robot-side data collection,
+- the converted LeRobot dataset has a stable repo id,
+- the separate `diffusion-policy` repo can train from the same dataset reference,
+- I do not need to keep copying raw data folders between repos just to iterate on training.
+
+I still keep the raw episodes in `data/demos/` because they are the source of truth, but the primary training artifact is now the LeRobot dataset on the Hugging Face Hub.
+
+If the camera is still only producing about 10 fps in the stable mode, the recorder will still sample at 20 Hz, but some consecutive dataset frames will reuse the latest camera image while the robot and action state continue updating. That is acceptable for getting started, and the raw episode metadata preserves the original image timestamps. For this early imitation-learning setup, consistency of viewpoint and scene layout matters more than maximizing visual diversity.
 
 The current repo is now set up around one primary learning-data path:
 - raw episodes in `data/demos/`
-- local LeRobot dataset in `data/lerobot/`
+- staged LeRobot datasets in `data/lerobot/`
+- Hub datasets as the preferred training handoff
 - no replay-zarr conversion in the active workflow
 
 For the best chance of useful same-day inference from only 10-20 demos, I should keep the data collection very consistent:
@@ -484,7 +628,7 @@ For the best chance of useful same-day inference from only 10-20 demos, I should
 - `src/examples`: homing, calibration, and one-off task-space helpers
 - `src/ros2_ws/src/rotom_control`: ROS 2 bridge between ROS topics/actions and the physical motor bus
 - `src/ros2_ws/src/rotom_data`: episode recorder and demonstration-collection launch files
-- `src/ros2_ws/src/rotom_task_control`: reduced task-space controller, task-space teleop input, and kinematics
+- `src/ros2_ws/src/rotom_task_control`: reduced task-space controller, task-space teleop input, kinematics, and policy inference
 - `src/ros2_ws/src/rotom_vision`: camera split, ArUco tracking, marker following, and visual-servo logic
 - `src/ros2_ws/src/rotom_servo`: twist relay interface into MoveIt Servo for the older Servo-based path
 - `src/ros2_ws/src/rotom_moveit_config`: MoveIt configuration and bringup
@@ -493,7 +637,7 @@ For the best chance of useful same-day inference from only 10-20 demos, I should
 - `teleop`: Mac-side MediaPipe sender and teleop setup notes
 
 ## Hardware
-- Compute: NVIDIA Jetson Orin Nano
+- Compute: NVIDIA Jetson Orin Nano with CUDA-enabled embedded GPU used for robot runtime and policy deployment experiments
 - Actuation: Feetech STS3215 smart servos on a daisy-chained serial bus
 - Vision: stereo USB camera
 - Development host: macOS machine used for teleop, RViz, and remote workflows
@@ -502,6 +646,8 @@ For the best chance of useful same-day inference from only 10-20 demos, I should
 - ROS 2 Humble
 - MoveIt 2 + MoveIt Servo
 - Custom reduced task-space controller in `rotom_task_control`
+- LeRobot dataset conversion and Hugging Face Hub workflow
+- Diffusion-policy training handoff and ROS-native policy deployment
 - Python motor stack in `src/motors`
 - OpenCV ArUco / ChArUco tooling
 - MediaPipe hand tracking for teleoperation

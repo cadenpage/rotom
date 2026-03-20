@@ -1,2 +1,3 @@
 lerobot
+huggingface_hub
 Pillow

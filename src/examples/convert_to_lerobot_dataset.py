@@ -79,23 +79,33 @@ def _state_vector(step: dict[str, Any]) -> np.ndarray:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert raw Rotom demos into a local LeRobot dataset.")
+    parser = argparse.ArgumentParser(
+        description="Convert raw Rotom demos into a LeRobot dataset, optionally push it to the Hugging Face Hub."
+    )
     parser.add_argument("--raw-root", default="data/demos", help="Directory containing raw episode folders.")
-    parser.add_argument("--repo-id", default="local/rotom_task_teleop", help="Local LeRobot dataset repo id.")
-    parser.add_argument("--root", default="data/lerobot", help="Root directory for the local LeRobot dataset.")
+    parser.add_argument("--repo-id", default="local/rotom_task_teleop", help="LeRobot dataset repo id, e.g. local/rotom_task_teleop or username/rotom_task_teleop.")
+    parser.add_argument("--root", default="data/lerobot", help="Local staging root for the LeRobot dataset.")
     parser.add_argument("--fps", type=int, default=20, help="Dataset frame rate metadata.")
     parser.add_argument("--task", default="table_teleop", help="Fallback task name when episode metadata has no task_id.")
     parser.add_argument("--action-mode", choices=["xy", "xyz"], default="xy", help="Action dimensions to export.")
     parser.add_argument("--success-only", action="store_true", help="Keep only success-labeled episodes.")
-    parser.add_argument("--force", action="store_true", help="Overwrite an existing local LeRobot dataset directory.")
+    parser.add_argument("--force", action="store_true", help="Overwrite an existing staged LeRobot dataset directory.")
+    parser.add_argument("--push-to-hub", action="store_true", help="Push the staged dataset to the Hugging Face Hub after conversion.")
+    parser.add_argument("--private", action="store_true", help="Create/update the Hub dataset as private when pushing.")
+    parser.add_argument("--branch", default=None, help="Optional Hub branch/revision to push to.")
+    parser.add_argument("--license", default="apache-2.0", help="Dataset card license passed to LeRobot push_to_hub().")
+    parser.add_argument("--upload-large-folder", action="store_true", help="Use the large-folder upload path when pushing to the Hub.")
     args = parser.parse_args()
 
     try:
         from lerobot.datasets.lerobot_dataset import LeRobotDataset
     except Exception as exc:
         raise SystemExit(
-            "LeRobot is not installed in the active environment. Run `just lerobot-install` on the training machine first."
+            "LeRobot is not installed in the active environment. Run `just lerobot-install` first."
         ) from exc
+
+    if args.push_to_hub and args.repo_id.startswith("local/"):
+        raise SystemExit("--push-to-hub requires a real Hugging Face dataset repo id like username/rotom_task_teleop")
 
     raw_root = Path(args.raw_root).expanduser().resolve()
     output_root = Path(args.root).expanduser().resolve()
@@ -112,14 +122,26 @@ def main() -> None:
     state_dim = 4
     action_dim = 2 if args.action_mode == "xy" else 3
     features = {
-        "observation.images.front": {"dtype": "image"},
-        "observation.state": {"dtype": "float32", "shape": (state_dim,)},
-        "action": {"dtype": "float32", "shape": (action_dim,)},
+        "observation.images.front": {
+            "dtype": "image",
+            "shape": (112, 112, 3),
+            "names": ["height", "width", "channels"],
+        },
+        "observation.state": {
+            "dtype": "float32",
+            "shape": (state_dim,),
+            "names": ["O", "A", "B", "C"],
+        },
+        "action": {
+            "dtype": "float32",
+            "shape": (action_dim,),
+            "names": ["dx", "dy"] if args.action_mode == "xy" else ["dx", "dy", "dz"],
+        },
     }
 
     create_kwargs = {
         "repo_id": args.repo_id,
-        "root": output_root,
+        "root": dataset_dir,
         "fps": args.fps,
         "robot_type": "rotom",
         "features": features,
@@ -145,6 +167,7 @@ def main() -> None:
             state = _state_vector(step)
             action = _action(step, args.action_mode)
             frame = {
+                "task": task_name,
                 "observation.images.front": _load_image_rgb(image_path),
                 "observation.state": state,
                 "action": action,
@@ -182,11 +205,24 @@ def main() -> None:
         dataset.consolidate()
 
     dataset_dir.mkdir(parents=True, exist_ok=True)
-    (dataset_dir / "episode_metadata.json").write_text(json.dumps(episode_summaries, indent=2) + "\n", encoding="utf-8")
+    (dataset_dir / "episode_metadata.json").write_text(
+        json.dumps(episode_summaries, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     print(f"wrote LeRobot dataset to {dataset_dir}")
     print(f"episodes: {len(episode_summaries)}")
     print(f"frames: {frame_count}")
+
+    if args.push_to_hub:
+        dataset.push_to_hub(
+            branch=args.branch,
+            private=args.private,
+            license=args.license,
+            tags=["lerobot", "rotom", "robotics", "imitation-learning"],
+            upload_large_folder=args.upload_large_folder,
+        )
+        print(f"pushed dataset to https://huggingface.co/datasets/{args.repo_id}")
 
 
 if __name__ == "__main__":

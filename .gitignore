@@ -19,3 +19,4 @@ src/ros2_ws/log/
 # Recorded demos / datasets
 data/demos/
 data/lerobot/
+policies/

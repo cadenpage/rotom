@@ -15,6 +15,22 @@ lerobot-install:
   {{repo_root}}/.venv/bin/python -m pip install --upgrade pip
   {{repo_root}}/.venv/bin/python -m pip install -r {{repo_root}}/requirements-lerobot.txt
 
+lerobot-install-jetson-cuda:
+  {{repo_root}}/.venv/bin/python -m pip install --upgrade pip
+  {{repo_root}}/.venv/bin/python -m pip install -r {{repo_root}}/requirements-lerobot.txt
+  {{repo_root}}/.venv/bin/python -m pip uninstall -y torch torchvision torchaudio || true
+  {{repo_root}}/.venv/bin/python -m pip install 'numpy<2'
+  {{repo_root}}/.venv/bin/python -m pip install --no-deps --index-url https://pypi.jetson-ai-lab.io/jp6/cu126 torch==2.8.0 torchvision==0.23.0
+
+jetson-torch-check:
+  {{repo_root}}/.venv/bin/python -c "import torch; print('torch', torch.__version__); print('cuda_available', torch.cuda.is_available()); print('torch_cuda', torch.version.cuda); print('device_count', torch.cuda.device_count()); print('device_name', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'n/a')"
+
+hf-login:
+  {{repo_root}}/.venv/bin/python -m huggingface_hub.commands.huggingface_cli login
+
+hf-whoami:
+  {{repo_root}}/.venv/bin/python -m huggingface_hub.commands.huggingface_cli whoami
+
 mac-teleop-venv:
   $(brew --prefix python@3.10)/bin/python3.10 -m venv {{repo_root}}/.venv
 
@@ -57,7 +73,7 @@ build:
 
 reset:
   pkill -f '[r]os2 launch rotom_' 2>/dev/null || true
-  pkill -f '[r]otom_motor_bridge|[t]wist_relay|[s]tereo_splitter|[a]ruco_tracker|[m]arker_follower|[s]ervo_node_main|[v]4l2_camera_node|[m]ove_group|[r]obot_state_publisher|[m]ediapipe_teleop|[p]lanar_task_controller|[m]ediapipe_task_input|[e]pisode_recorder' 2>/dev/null || true
+  pkill -f '[r]otom_motor_bridge|[t]wist_relay|[s]tereo_splitter|[a]ruco_tracker|[m]arker_follower|[s]ervo_node_main|[v]4l2_camera_node|[m]ove_group|[r]obot_state_publisher|[m]ediapipe_teleop|[p]lanar_task_controller|[m]ediapipe_task_input|[p]olicy_inference|[e]pisode_recorder' 2>/dev/null || true
   sleep 1
   echo "ROS graph reset complete."
 
@@ -131,6 +147,18 @@ task-core:
 task-teleop-hw:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_task_control task_teleop_hw.launch.py
 
+policy-node policy_repo_id="caden-ut/rotom_task_teleop_diffusion" local_policy_path="/home/caden/Documents/rotom/policies/rotom_task_teleop_diffusion/pretrained_model":
+  /home/caden/Documents/rotom/scripts/ros2_repo_python_env.sh -m rotom_task_control.policy_inference_node --ros-args --params-file /home/caden/Documents/rotom/src/ros2_ws/src/rotom_task_control/config/policy_inference.yaml -p policy_repo_id:={{policy_repo_id}} -p local_policy_path:={{local_policy_path}}
+
+policy-hw policy_repo_id="caden-ut/rotom_task_teleop_diffusion" local_policy_path="/home/caden/Documents/rotom/policies/rotom_task_teleop_diffusion/pretrained_model" start_enabled="false" camera_pixel_format="YUYV" camera_image_size="[1280,480]" camera_output_encoding="mono8":
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_task_control task_policy_hw.launch.py policy_repo_id:={{policy_repo_id}} local_policy_path:={{local_policy_path}} start_enabled:={{start_enabled}} camera_pixel_format:={{camera_pixel_format}} camera_image_size:="{{camera_image_size}}" camera_output_encoding:={{camera_output_encoding}}
+
+policy-start:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_policy/start std_srvs/srv/Trigger "{}"
+
+policy-stop:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_policy/stop std_srvs/srv/Trigger "{}"
+
 record-node:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_data episode_recorder.launch.py
 
@@ -160,6 +188,21 @@ annotate-episode episode success="" task_id="" failure_code="" notes="":
 
 convert-lerobot-dataset raw_root="data/demos" repo_id="local/rotom_task_teleop" root="data/lerobot" success_only="true" task="table_teleop" action_mode="xy" force="false":
   {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/convert_to_lerobot_dataset.py --raw-root {{raw_root}} --repo-id {{repo_id}} --root {{root}} --task {{task}} --action-mode {{action_mode}} {{ if success_only == "true" { "--success-only" } else { "" } }} {{ if force == "true" { "--force" } else { "" } }}
+
+convert-lerobot-hub repo_id:
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/convert_to_lerobot_dataset.py --raw-root data/demos --repo-id {{repo_id}} --root data/lerobot --task table_teleop --action-mode xy --push-to-hub --success-only
+
+convert-lerobot-hub-force repo_id:
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/convert_to_lerobot_dataset.py --raw-root data/demos --repo-id {{repo_id}} --root data/lerobot --task table_teleop --action-mode xy --push-to-hub --success-only --force
+
+convert-lerobot-hub-private repo_id:
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/convert_to_lerobot_dataset.py --raw-root data/demos --repo-id {{repo_id}} --root data/lerobot --task table_teleop --action-mode xy --push-to-hub --success-only --force --private
+
+pull-lerobot-dataset repo_id:
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/pull_lerobot_dataset.py --repo-id {{repo_id}} --root data/lerobot_hub
+
+pull-lerobot-dataset-force repo_id:
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/pull_lerobot_dataset.py --repo-id {{repo_id}} --root data/lerobot_hub --force
 
 task-delta x="0.0" y="0.0" z="0.0" rate="10":
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 topic pub /rotom_task/delta_cmd geometry_msgs/msg/Vector3 "{x: {{x}}, y: {{y}}, z: {{z}}}" -r {{rate}}
@@ -193,6 +236,9 @@ view-camera:
 
 view-dataset-camera:
   DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 run rotom_vision image_monitor --ros-args -p image_topic:=/rotom_dataset/image_resized -p window_name:="Rotom Dataset Camera" -p max_width:=448
+
+view-policy-camera:
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 run rotom_vision image_monitor --ros-args -p image_topic:=/rotom_policy/image_input -p window_name:="Rotom Policy Camera" -p max_width:=448
 
 # Compatibility aliases
 marker-follow:
