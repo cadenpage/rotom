@@ -40,6 +40,8 @@ This is the physical setup I used for data collection and policy inference:
 ## Supporting Milestone: Smooth MediaPipe Task-Space Teleoperation
 This is the human side of the learning pipeline. I can teleoperate the real robot from my Mac webcam using MediaPipe hand tracking, but instead of sending generic 3D or 6D twists through MoveIt Servo, I now command a reduced action space that matches the actual robot and the tabletop tasks I care about.
 
+This idea actually came from a project I did last semester where I made an end to end [Learning from Demonstration Simulator](https://github.com/cadenpage/TeleOp-BC) in MuJoCo.
+
 The live teleoperation stack is:
 
 `Mac webcam -> MediaPipe -> UDP -> mediapipe_task_input -> /rotom_task/delta_cmd -> planar_task_controller -> /joint_commands -> rotom_motor_bridge -> motors`
