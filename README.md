@@ -210,7 +210,7 @@ That milestone still matters because it proved:
 </table>
 
 ### Engineering Challenges Overcome In The ArUco System
-The ArUco-following milestone was not just "I made a marker demo." The hardest part was getting the closed-loop robot behavior to be trustworthy on the real arm. The infrastructure issues mattered, but the more important engineering work was solving the control and mechanism problems that showed up once the loop was actually running.
+The hardest part was getting the closed-loop robot behavior to be trustworthy on the real arm. The infrastructure issues mattered, but the more important engineering work was solving the control and mechanism problems that showed up once the loop was actually running.
 
 #### Control And Robot-Behavior Problems
 - Oscillation and choppy motion:
@@ -300,6 +300,7 @@ These milestones are still important because they were the path from "robot mode
 - Controller tuning across perception, middleware, kinematics, and actuation layers
 - DDS and middleware debugging
 - End-to-end systems debugging across hardware, drivers, ROS, and control software
+- Demonstration-data tooling and dataset conversion for imitation learning
 
 ## Current Bringup Paths
 The most relevant commands in the repository right now are:
@@ -321,10 +322,168 @@ On the Mac teleop side:
 just mac-teleop Berra
 ```
 
+## Demonstration Collection
+I now have a dedicated demonstration recorder path for collecting LeRobot-ready real-robot episodes. The important design choice is that I do **not** slow the controller itself down to 20 Hz. The task controller and teleop path can stay faster for smoother robot behavior, while the recorder samples the latest camera, action, and robot state at **20 Hz** for the dataset.
+
+That gives me:
+- a training-friendly fixed-rate dataset,
+- small RGB images center-cropped to a square and resized to **112x112**,
+- and a raw episode format that can still be re-converted later if I change the training stack.
+
+### What Gets Recorded
+At each 20 Hz sample, the recorder stores:
+- camera frame from `/camera/selected/image_raw`
+- camera intrinsics from `/camera/selected/camera_info`
+- `/joint_states`
+- `/joint_commands`
+- `/rotom_task/delta_cmd`
+- `/rotom_task/raw_hand_pose`
+- `/rotom_task/teleop_enabled`
+- `/rotom_task/controller_enabled`
+- `/rotom_task/current_pose`, `/rotom_task/target_pose`, `/rotom_task/command_pose`
+- `/rotom_task/current_pitch`, `/rotom_task/target_pitch`, `/rotom_task/command_pitch`
+- episode-level success / failure labels and notes
+
+Each raw episode is written under `data/demos/` as:
+- `meta.json`
+- `camera_info.json`
+- `steps.jsonl`
+- `images/frame_000000.jpg`, ...
+
+The raw episodes are the source of truth. I then convert those into a **local LeRobot dataset** for training and inference.
+
+### Record A Test Demo Today
+Jetson, terminal 1:
+
+```bash
+just build
+just reset
+just task-home
+just record-demo-hw
+```
+
+Jetson, terminal 2:
+
+```bash
+just record-start
+just record-stop-success
+just record-stop-failure
+just record-discard
+```
+
+Mac:
+
+```bash
+just mac-teleop Berra
+```
+
+Recommended first test:
+1. Start `record-demo-hw` on the Jetson.
+2. If you want to see the live camera stream, open another Jetson terminal and run `just view-camera`.
+3. Start `mac-teleop Berra` on the Mac.
+4. Call `just record-start` on the Jetson.
+5. Teleoperate one short block-slide or reach demo.
+6. End with `just record-stop-success` or `just record-stop-failure`.
+
+### Seeing What The Camera Sees
+While the camera is running, the quickest full-resolution live viewer is:
+
+```bash
+just view-camera
+```
+
+If you want to see the exact processed `112x112` image that will be saved and converted for learning, run:
+
+```bash
+just view-dataset-camera
+```
+
+If you only want the camera without the full teleop/record stack, run:
+
+```bash
+just camera-stream
+```
+
+and in another terminal:
+
+```bash
+just view-camera
+```
+
+If you want to inspect the exact saved dataset frames, open the latest episode folder under `data/demos/<episode_id>/images/`. Those are the center-cropped 112x112 frames that will be converted into the LeRobot dataset.
+
+### Convert To LeRobot Dataset
+On the machine you want to train on, install the extra ML dependency layer:
+
+```bash
+just lerobot-install
+```
+
+Then convert the raw demos:
+
+```bash
+just convert-lerobot-dataset
+```
+
+By default that writes a local LeRobot dataset under:
+
+```text
+data/lerobot/local/rotom_task_teleop
+```
+
+with a deliberately minimal policy-facing interface:
+- `observation.images.front`
+- `observation.state`
+- `action`
+
+The default action exported for learning is the same reduced control space I am teleoperating with now:
+- `action = [dx, dy]`
+
+The default state exported is intentionally just the 4 measured arm joints:
+- `state = [O, A, B, C]`
+
+That keeps the policy aligned with the real controller interface while avoiding redundant state channels when I only have a small number of demos.
+
+### Mac Training Workflow
+I do **not** want large datasets in git. The clean workflow is:
+- keep code in git,
+- keep raw demos and LeRobot datasets out of git,
+- sync `data/demos/` from the Jetson to the Mac,
+- convert locally on the Mac,
+- and train / infer there.
+
+Example sync from the Mac:
+
+```bash
+rsync -av --progress Berra:~/Documents/rotom/data/demos/ ~/Documents/rotom/data/demos/
+```
+
+Then on the Mac:
+
+```bash
+just lerobot-install
+just convert-lerobot-dataset
+```
+
+If the camera is still only producing about 10 fps in the stable mode, the recorder will still sample at 20 Hz, but some consecutive dataset frames will reuse the latest camera image while the robot/action state continues updating. That is acceptable for getting started today, and the raw episode metadata preserves the original image timestamps.
+
+The current repo is now set up around one primary learning-data path:
+- raw episodes in `data/demos/`
+- local LeRobot dataset in `data/lerobot/`
+- no replay-zarr conversion in the active workflow
+
+For the best chance of useful same-day inference from only 10-20 demos, I should keep the data collection very consistent:
+- one task only
+- same camera viewpoint
+- same planar home / reset pose
+- same object and table layout
+- mostly success-labeled demos
+
 ## Repo Map
 - `src/motors`: low-level Feetech bus helpers and register access
 - `src/examples`: homing, calibration, and one-off task-space helpers
 - `src/ros2_ws/src/rotom_control`: ROS 2 bridge between ROS topics/actions and the physical motor bus
+- `src/ros2_ws/src/rotom_data`: episode recorder and demonstration-collection launch files
 - `src/ros2_ws/src/rotom_task_control`: reduced task-space controller, task-space teleop input, and kinematics
 - `src/ros2_ws/src/rotom_vision`: camera split, ArUco tracking, marker following, and visual-servo logic
 - `src/ros2_ws/src/rotom_servo`: twist relay interface into MoveIt Servo for the older Servo-based path

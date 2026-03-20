@@ -11,6 +11,10 @@ venv-install:
   {{repo_root}}/.venv/bin/pip install --upgrade pip
   {{repo_root}}/.venv/bin/pip install -r {{repo_root}}/requirements.txt
 
+lerobot-install:
+  {{repo_root}}/.venv/bin/python -m pip install --upgrade pip
+  {{repo_root}}/.venv/bin/python -m pip install -r {{repo_root}}/requirements-lerobot.txt
+
 mac-teleop-venv:
   $(brew --prefix python@3.10)/bin/python3.10 -m venv {{repo_root}}/.venv
 
@@ -53,7 +57,7 @@ build:
 
 reset:
   pkill -f '[r]os2 launch rotom_' 2>/dev/null || true
-  pkill -f '[r]otom_motor_bridge|[t]wist_relay|[s]tereo_splitter|[a]ruco_tracker|[m]arker_follower|[s]ervo_node_main|[v]4l2_camera_node|[m]ove_group|[r]obot_state_publisher|[m]ediapipe_teleop|[p]lanar_task_controller|[m]ediapipe_task_input' 2>/dev/null || true
+  pkill -f '[r]otom_motor_bridge|[t]wist_relay|[s]tereo_splitter|[a]ruco_tracker|[m]arker_follower|[s]ervo_node_main|[v]4l2_camera_node|[m]ove_group|[r]obot_state_publisher|[m]ediapipe_teleop|[p]lanar_task_controller|[m]ediapipe_task_input|[e]pisode_recorder' 2>/dev/null || true
   sleep 1
   echo "ROS graph reset complete."
 
@@ -102,6 +106,9 @@ pulse-z value="0.01" duration="1.5" rate="10":
 vision:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision vision_pipeline.launch.py
 
+camera-stream:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision camera_stream.launch.py
+
 vision-debug: vision
 
 vision-camera: vision
@@ -123,6 +130,36 @@ task-core:
 
 task-teleop-hw:
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_task_control task_teleop_hw.launch.py
+
+record-node:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_data episode_recorder.launch.py
+
+record-demo-core:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_data demo_record_core.launch.py
+
+record-demo-hw:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_data demo_record_hw.launch.py
+
+record-start:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_dataset/start_episode std_srvs/srv/Trigger "{}"
+
+record-stop:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_dataset/stop_episode std_srvs/srv/Trigger "{}"
+
+record-stop-success:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_dataset/stop_episode_success std_srvs/srv/Trigger "{}"
+
+record-stop-failure:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_dataset/stop_episode_failure std_srvs/srv/Trigger "{}"
+
+record-discard:
+  /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 service call /rotom_dataset/discard_episode std_srvs/srv/Trigger "{}"
+
+annotate-episode episode success="" task_id="" failure_code="" notes="":
+  bash -lc 'args=(); if [[ -n "{{success}}" ]]; then args+=(--success "{{success}}"); fi; if [[ -n "{{task_id}}" ]]; then args+=(--task-id "{{task_id}}"); fi; if [[ -n "{{failure_code}}" ]]; then args+=(--failure-code "{{failure_code}}"); fi; if [[ -n "{{notes}}" ]]; then args+=(--notes "{{notes}}"); fi; /home/caden/Documents/rotom/scripts/repo_python_env.sh /home/caden/Documents/rotom/src/examples/annotate_episode.py "{{episode}}" "${args[@]}"'
+
+convert-lerobot-dataset raw_root="data/demos" repo_id="local/rotom_task_teleop" root="data/lerobot" success_only="true" task="table_teleop" action_mode="xy" force="false":
+  {{repo_root}}/scripts/repo_python_env.sh {{repo_root}}/src/examples/convert_to_lerobot_dataset.py --raw-root {{raw_root}} --repo-id {{repo_id}} --root {{root}} --task {{task}} --action-mode {{action_mode}} {{ if success_only == "true" { "--success-only" } else { "" } }} {{ if force == "true" { "--force" } else { "" } }}
 
 task-delta x="0.0" y="0.0" z="0.0" rate="10":
   /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 topic pub /rotom_task/delta_cmd geometry_msgs/msg/Vector3 "{x: {{x}}, y: {{y}}, z: {{z}}}" -r {{rate}}
@@ -153,6 +190,9 @@ table-slide-core:
 
 view-camera:
   DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 launch rotom_vision view_camera.launch.py
+
+view-dataset-camera:
+  DISPLAY="${DISPLAY:-:0}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" /home/caden/Documents/rotom/scripts/ros2_clean_env.sh ros2 run rotom_vision image_monitor --ros-args -p image_topic:=/rotom_dataset/image_resized -p window_name:="Rotom Dataset Camera" -p max_width:=448
 
 # Compatibility aliases
 marker-follow:

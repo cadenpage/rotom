@@ -1,0 +1,34 @@
+episode_recorder:
+  ros__parameters:
+    image_topic: "/camera/selected/image_raw"
+    camera_info_topic: "/camera/selected/camera_info"
+    joint_state_topic: "/joint_states"
+    joint_command_topic: "/joint_commands"
+    delta_topic: "/rotom_task/delta_cmd"
+    raw_hand_pose_topic: "/rotom_task/raw_hand_pose"
+    teleop_enabled_topic: "/rotom_task/teleop_enabled"
+    controller_enabled_topic: "/rotom_task/controller_enabled"
+    current_pose_topic: "/rotom_task/current_pose"
+    target_pose_topic: "/rotom_task/target_pose"
+    command_pose_topic: "/rotom_task/command_pose"
+    current_pitch_topic: "/rotom_task/current_pitch"
+    target_pitch_topic: "/rotom_task/target_pitch"
+    command_pitch_topic: "/rotom_task/command_pitch"
+    output_root: "data/demos"
+    image_subdir: "images"
+    image_format: "jpg"
+    image_jpeg_quality: 85
+    max_record_rate_hz: 20.0
+    resize_width: 112
+    resize_height: 112
+    save_camera_info: true
+    start_recording_on_launch: false
+    start_service: "/rotom_dataset/start_episode"
+    stop_service: "/rotom_dataset/stop_episode"
+    stop_success_service: "/rotom_dataset/stop_episode_success"
+    stop_failure_service: "/rotom_dataset/stop_episode_failure"
+    discard_service: "/rotom_dataset/discard_episode"
+    recording_topic: "/rotom_dataset/recording"
+    current_episode_topic: "/rotom_dataset/current_episode"
+    processed_image_topic: "/rotom_dataset/image_resized"
+    warn_period_s: 2.0

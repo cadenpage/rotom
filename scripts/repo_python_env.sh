@@ -1,13 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
-# Run local helper scripts with a repo-local venv when present, otherwise system
-# Python, while exposing the repo's source tree.
-export PYTHONPATH=/home/caden/Documents/rotom/src${PYTHONPATH:+:$PYTHONPATH}
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 
-PYTHON_BIN=/usr/bin/python3
-if [ -x /home/caden/Documents/rotom/.venv/bin/python ]; then
-  PYTHON_BIN=/home/caden/Documents/rotom/.venv/bin/python
+export PYTHONPATH="${REPO_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
+
+PYTHON_BIN="$(command -v python3)"
+if [ -x "${REPO_ROOT}/.venv/bin/python" ]; then
+  PYTHON_BIN="${REPO_ROOT}/.venv/bin/python"
 fi
 
 exec "$PYTHON_BIN" "$@"

@@ -15,3 +15,7 @@ log/
 src/ros2_ws/build/
 src/ros2_ws/install/
 src/ros2_ws/log/
+
+# Recorded demos / datasets
+data/demos/
+data/lerobot/
