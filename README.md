@@ -51,7 +51,8 @@ What this proves:
 - I have a task/action interface that is much better suited for collecting demonstrations for imitation learning.
 - The same action space can later be reused for policies, rather than being only a hand-built demo path.
 
-### Demo Placeholder
+### Teleoperation Demo
+This isn't the best run because it was before I got the hang of the controller/tuning, but it shows the point.
 <div align="center">
   <img src="imgs/teleop.gif" alt="Smooth Teleoperation Demo" height="800"/>
 </div>
